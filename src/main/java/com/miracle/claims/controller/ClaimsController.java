@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.miracle.claims.beans.Claim;
+import com.miracle.claims.config.ConfigurationDetails;
 import com.miracle.claims.exception.ErrorDetails;
 import com.miracle.claims.service.ClaimsServiceImpl;
 
@@ -39,7 +40,9 @@ import io.swagger.annotations.ApiResponses;
 @CrossOrigin(origins="*")
 @RequestMapping("/claims")
 public class ClaimsController {
-
+	
+	@Autowired
+	ConfigurationDetails configuration;
 	/** The claims services. */
 	@Autowired
 	private ClaimsServiceImpl claimsServices;
@@ -49,6 +52,11 @@ public class ClaimsController {
 	 *
 	 * @return the all claims
 	 */
+	
+	 @GetMapping("/endpoint")
+	 public String dbDetails(){
+	        return "Value: " + configuration.getValue();
+	 }
 	@Timed(
 			value = "claims.getAll",
 			histogram = true,
