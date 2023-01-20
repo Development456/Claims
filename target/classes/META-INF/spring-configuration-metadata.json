@@ -20,23 +20,12 @@
     {
       "name": "claims.port",
       "type": "java.lang.Integer",
-      "sourceType": "com.miracle.claims.config.ConfigurationDetails",
-      "defaultValue": 0
+      "sourceType": "com.miracle.claims.config.ConfigurationDetails"
     },
     {
       "name": "claims.value",
       "type": "java.lang.String",
       "sourceType": "com.miracle.claims.config.ConfigurationDetails"
-    },
-    {
-      "name": "eureka.client.instance.preferIpAddress",
-      "type": "java.lang.String",
-      "description": "A description for 'eureka.client.instance.preferIpAddress'"
-    },
-    {
-      "name": "management.security.enabled",
-      "type": "java.lang.String",
-      "description": "A description for 'management.security.enabled'"
     }
   ],
   "hints": []
