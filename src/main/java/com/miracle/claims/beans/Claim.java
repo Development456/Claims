@@ -91,7 +91,15 @@ public class Claim {
 	@Field("last_update_date")
 	@LastModifiedDate
 	private String lastUpdateDate;
-
+	
+	@ApiModelProperty(required = false, value = "customer id", name = "customerId", dataType = "Int", example = "")
+	@Field("customer_id")
+	@LastModifiedDate
+	private String customerId;
+	
+	@ApiModelProperty(required = true, value = "master account", name = "masterAccount", dataType = "String", example = "open")
+	@Field("master_acc")
+	private String masterAccount;
 	
 	@Override
 	public String toString() {
@@ -99,7 +107,7 @@ public class Claim {
 				+ palletQuantity + ", documentType=" + documentType + ", claimedAmount=" + claimedAmount
 				+ ",paidAmount=" + paidAmount + ",serviceProviderClaimId=" + serviceProviderClaimId + ", claimStatus=" + claimStatus + ", claimType="
 				+ claimType + ", creatorId=" + creatorId + ", closedDate=" + closedDate + ",lastUpdateId="
-				+ lastUpdateId +  "createdDate=" + createdDate +"]";
+				+ lastUpdateId +  "createdDate=" + createdDate + ", customerId=" + customerId + ", masterAccount=" + masterAccount + "]";
 	}
 
 
