@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -56,6 +57,13 @@ public class ClaimsController {
 	 @GetMapping("/endpoint")
 	 public String dbDetails(){
 	        return "Value: " + configuration.getValue();
+	 }
+	 @Value("${client.pseudo.property}")
+	 private String pseudoProperty;
+
+	 @GetMapping("/property")
+	 public ResponseEntity<String> getProperty() {
+	        return ResponseEntity.ok(pseudoProperty);
 	 }
 	@Timed(
 			value = "claims.getAll",
