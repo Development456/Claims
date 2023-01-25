@@ -101,13 +101,17 @@ public class Claim {
 	@Field("master_acc")
 	private String masterAccount;
 	
+	@ApiModelProperty(required = true, value = "user id", name = "userId", dataType = "String", example = "23ndsbjfjkdfh362875")
+	@Field("user_id")
+	private String userId;
+	
 	@Override
 	public String toString() {
 		return "Claim [id=" + _id + ", claimId=" + claimId + ", facilityId=" + facilityId + ", palletQuantity="
 				+ palletQuantity + ", documentType=" + documentType + ", claimedAmount=" + claimedAmount
 				+ ",paidAmount=" + paidAmount + ",serviceProviderClaimId=" + serviceProviderClaimId + ", claimStatus=" + claimStatus + ", claimType="
 				+ claimType + ", creatorId=" + creatorId + ", closedDate=" + closedDate + ",lastUpdateId="
-				+ lastUpdateId +  "createdDate=" + createdDate + ", customerId=" + customerId + ", masterAccount=" + masterAccount + "]";
+				+ lastUpdateId +  "createdDate=" + createdDate + ", customerId=" + customerId + ", masterAccount=" + masterAccount + ", userId=" + userId +"]";
 	}
 
 

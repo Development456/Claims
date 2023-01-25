@@ -152,6 +152,9 @@ public class ClaimsController {
 			else if(key.equalsIgnoreCase("lastUpdateDate")) {
 				claim.setLastUpdateDate(value);
 			}
+			else if(key.equalsIgnoreCase("user_id")) {
+				claim.setLastUpdateDate(value);
+			}
 		});
 		return claimsServices.getAllClaimsFilter(claim, page, size, sort);
 	}
