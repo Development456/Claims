@@ -39,6 +39,7 @@ out/
 ## Eclipse
 ##############################
 .settings/
+target/
 bin/
 tmp/
 .metadata
