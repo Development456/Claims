@@ -42,8 +42,8 @@ import io.swagger.annotations.ApiResponses;
 @RequestMapping("/claims")
 public class ClaimsController {
 	
-	@Autowired
-	ConfigurationDetails configuration;
+//	@Autowired
+//	ConfigurationDetails configuration;
 	/** The claims services. */
 	@Autowired
 	private ClaimsServiceImpl claimsServices;
@@ -54,17 +54,17 @@ public class ClaimsController {
 	 * @return the all claims
 	 */
 	
-	 @GetMapping("/endpoint")
-	 public String dbDetails(){
-	        return "Value: " + configuration.getValue();
-	 }
-	 @Value("${client.pseudo.property}")
-	 private String pseudoProperty;
-
-	 @GetMapping("/property")
-	 public ResponseEntity<String> getProperty() {
-	        return ResponseEntity.ok(pseudoProperty);
-	 }
+//	 @GetMapping("/endpoint")
+//	 public String dbDetails(){
+//	        return "Value: " + configuration.getValue();
+//	 }
+//	 @Value("${client.pseudo.property}")
+//	 private String pseudoProperty;
+//
+//	 @GetMapping("/property")
+//	 public ResponseEntity<String> getProperty() {
+//	        return ResponseEntity.ok(pseudoProperty);
+//	 }
 	@Timed(
 			value = "claims.getAll",
 			histogram = true,
@@ -515,6 +515,13 @@ public class ClaimsController {
 	public ResponseEntity<List<Claim>> getClaimsByCreateDate(
 			@ApiParam(value = "Claim Create Date", required = true) @PathVariable("createdDate") String createdDate) {
 		return claimsServices.getClaimsByCreateDate(createdDate);
+	}
+	
+	
+	//post for Kafka
+	@PostMapping
+	public void publish(Claim claim) {
+		claimsServices.consume(claim);
 	}
 
 	/**
