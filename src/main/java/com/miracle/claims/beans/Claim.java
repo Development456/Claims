@@ -82,7 +82,7 @@ public class Claim {
 	@Field("closed_date")
 	private String closedDate;
 
-	@ApiModelProperty(required = false, value = "create date", name = "createDate", dataType = "Date", example = "16-OCT-2022 03.12.36.898000000 PM")
+	@ApiModelProperty(required = false, value = "create date", name = "createDate", dataType = "String", example = "16-OCT-2022 03.12.36.898000000 PM")
 	@Field("create_date")
 	@CreatedDate
 	private String createdDate ;

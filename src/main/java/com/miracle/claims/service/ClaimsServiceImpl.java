@@ -11,9 +11,12 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.annotation.KafkaListener;
+//import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,12 +24,12 @@ import java.util.Map;
 
 @Component
 @Service
-//@Slf4j
+// @Slf4j
 public class ClaimsServiceImpl implements ClaimsService {
 
 	@Autowired
 	ClaimsRepository claimsRepository;
-	
+
 	@Autowired
 	MongoOperations mongoOperations;
 
@@ -36,58 +39,55 @@ public class ClaimsServiceImpl implements ClaimsService {
 	// get the list of all
 	@Override
 	public List<Claim> getAllClaims() {
-		
+
 		return claimsRepository.findAll();
 	}
-	
-	
-	//filter
+
+	// filter
 	@Override
 	public ResponseEntity<List<Claim>> getAllClaimsFilter(Claim claim, int page, int size, String sort) {
-		
-		
-		
+
 		Pageable pageable = PageRequest.of(page, size);
-		
+
 		Query query = new Query();
 		query.with(pageable);
-		
+
 		List<Criteria> criteria = new ArrayList<>();
-		
-		if(claim.getClaimId() != null) {
+
+		if (claim.getClaimId() != null) {
 			criteria.add(Criteria.where("claim_id").is(claim.getClaimId()));
 		}
-		if(claim.getFacilityId() != null) {
+		if (claim.getFacilityId() != null) {
 			criteria.add(Criteria.where("facility_id").is(claim.getFacilityId()));
 		}
-		
-		if(claim.getDocumentType() != null) {
+
+		if (claim.getDocumentType() != null) {
 			criteria.add(Criteria.where("document_type").is(claim.getDocumentType()));
 		}
-		
-		if(claim.getClaimedAmount() != null ) {
+
+		if (claim.getClaimedAmount() != null) {
 			criteria.add(Criteria.where("claimed_amount").is(claim.getClaimedAmount()));
 		}
-		
-		if(claim.getClaimStatus() != null) {
+
+		if (claim.getClaimStatus() != null) {
 			criteria.add(Criteria.where("claim_status").is(claim.getClaimStatus()));
 		}
-		
-		if(claim.getClaimType() != null) {
+
+		if (claim.getClaimType() != null) {
 			criteria.add(Criteria.where("claim_type").is(claim.getClaimType()));
 		}
-		
-		if(claim.getCreatedDate() !=null ) {
+
+		if (claim.getCreatedDate() != null) {
 			criteria.add(Criteria.where("create_date").is(claim.getCreatedDate()));
 		}
-		if(claim.getUserId() !=null ) {
+		if (claim.getUserId() != null) {
 			criteria.add(Criteria.where("user_id").is(claim.getUserId()));
 		}
-		
+
 		query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[criteria.size()])));
-		
+
 		List<Claim> filteredVals = mongoOperations.find(query, Claim.class);
-		
+
 		return new ResponseEntity<List<Claim>>(filteredVals, new HttpHeaders(), HttpStatus.OK);
 	}
 
@@ -114,7 +114,7 @@ public class ClaimsServiceImpl implements ClaimsService {
 			claims.setClaimedAmount(claim.getClaimedAmount());
 			claims.setClaimType(claim.getClaimType());
 			claims.setPaidAmount(claim.getPaidAmount());
-            claims.setCreatedDate(claim.getCreatedDate());
+			claims.setCreatedDate(claim.getCreatedDate());
 			claims.setCustomerId(claim.getCustomerId());
 			claimsRepository.save(claims);
 			return new ResponseEntity<Claim>(HttpStatus.OK);
@@ -134,98 +134,100 @@ public class ClaimsServiceImpl implements ClaimsService {
 	public Claim getClaim(long serviceProviderClaimId) {
 		return claimsRepository.findByServiceProviderClaimId(serviceProviderClaimId);
 	}
+
 	@Override
 	public ResponseEntity<List<Claim>> getFacilityClaim(String facilityId) {
 		// TODO Auto-generated method stub
 		List<Claim> list = new ArrayList<>();
-		if(facilityId == null) {
+		if (facilityId == null) {
 			list.addAll(claimsRepository.findAll());
-		}else {
+		} else {
 			list.addAll(claimsRepository.findByFacilityId(facilityId));
-		}		
-		return new ResponseEntity<>(list,new HttpHeaders(), HttpStatus.OK); 
+		}
+		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 
 	}
 
 	@Override
 	public ResponseEntity<List<Claim>> getClaimsByStatus(String claimStatus) {
-		List<Claim> list = new ArrayList<>(); 
-		if(claimStatus == null) {
+		List<Claim> list = new ArrayList<>();
+		if (claimStatus == null) {
 			list.addAll(claimsRepository.findAll());
-		}else {
+		} else {
 			list.addAll(claimsRepository.findByStatus(claimStatus));
 		}
 		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 	}
-	
+
 	@Override
 	public ResponseEntity<List<Claim>> getClaimsByType(String claimType) {
 		List<Claim> list = new ArrayList<>();
-		if(claimType == null) {
+		if (claimType == null) {
 			list.addAll(claimsRepository.findAll());
-		}
-		else {
+		} else {
 			list.addAll(claimsRepository.findByType(claimType));
-		}	
+		}
 		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 	}
-	
+
 	@Override
 	public ResponseEntity<List<Claim>> getClaimsByDocumentType(String documentType) {
 		List<Claim> list = new ArrayList<>();
-		if(documentType == null) {
+		if (documentType == null) {
 			list.addAll(claimsRepository.findAll());
-		}
-		else {
+		} else {
 			list.addAll(claimsRepository.findByDocType(documentType));
-		}	
+		}
 		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 	}
 
 	public Claim getClaimByCreator(String creatorId) {
 		return claimsRepository.findByCreatorId(creatorId);
 	}
+
 	@Override
 	public Claim getCustomerClaim(String claimId) {
 		return claimsRepository.findByCustomerClaimId(claimId);
 	}
+
 	@Override
-	public ResponseEntity<List<Claim>> getAllClaimsByStatus(){
+	public ResponseEntity<List<Claim>> getAllClaimsByStatus() {
 		List<Claim> list = new ArrayList<>(claimsRepository.findClaimsByStatus());
 		System.out.println(list);
 		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 
 	}
+
 	@Override
 	public ResponseEntity<List<Claim>> getClaimsByCreateDate(String createDate) {
 		List<Claim> list = new ArrayList<>();
-		if(createDate == null) {
+		if (createDate == null) {
 			list.addAll(claimsRepository.findAll());
-		}
-		else {
+		} else {
 			claimsRepository.findByCreatedDate(createDate).forEach(list::add);
-		}	
+		}
 		return new ResponseEntity<List<Claim>>(list, new HttpHeaders(), HttpStatus.OK);
 	}
-//	@Override
-//	public ResponseEntity<List<Claim>> getClaimsByClaimedAmountAndStatus(String claimedAmount, String claimStatus){
-//		List<Claim> list = new ArrayList<>();
-//		claimsRepository.findByClaimedAmountandStatus(claimedAmount,claimStatus);
-//		return new ResponseEntity<List<Claim>>(list, new HttpHeaders(), HttpStatus.OK);
-//	}
+	// @Override
+	// public ResponseEntity<List<Claim>> getClaimsByClaimedAmountAndStatus(String
+	// claimedAmount, String claimStatus){
+	// List<Claim> list = new ArrayList<>();
+	// claimsRepository.findByClaimedAmountandStatus(claimedAmount,claimStatus);
+	// return new ResponseEntity<List<Claim>>(list, new HttpHeaders(),
+	// HttpStatus.OK);
+	// }
 
 	public ResponseEntity<List<Claim>> getClaimsByClosedDate(String closedDate) {
 		List<Claim> list = new ArrayList<>();
-		if(closedDate == null) {	
+		if (closedDate == null) {
 			claimsRepository.findAll().forEach(list::add);
-		}
-		else {
+		} else {
 			claimsRepository.findByClosedDate(closedDate).forEach(list::add);
-		}	
+		}
 		return new ResponseEntity<List<Claim>>(list, new HttpHeaders(), HttpStatus.OK);
 	}
 
-	@Override//find a way by query
+	@Override // find a way by query
 	public ResponseEntity<List<Claim>> getAllMessagesPaginated(int start, int size) {
 		ArrayList<Claim> paginatedMsg = new ArrayList<>(claimsRepository.findAll());
 		return new ResponseEntity<>(paginatedMsg.subList(start, start + size), new HttpHeaders(), HttpStatus.OK);
@@ -237,52 +239,71 @@ public class ClaimsServiceImpl implements ClaimsService {
 		HashMap<String, Integer> map = new HashMap<>();
 		List<Map> claimStatusAndCount = new ArrayList<>();
 
-//		Query query = new Query();
-//
-//		List<Criteria> criteria = new ArrayList<>();
-//		for(Claim claim:claims){
-//			if(claim.getClaimStatus() != null) {
-//				criteria.add(Criteria.where("claim_status").is(claim.getClaimStatus()));
-//			}
-//		}
-//		query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[criteria.size()])));
-//
-//		return mongoOperations.find(query, Claim.class);
-		if(startDate == null && endDate == null){
-			for(Claim claim: claimList){
-				map.put(claim.getClaimStatus(), map.getOrDefault(claim.getClaimStatus(),0)+1);
+		// Query query = new Query();
+		//
+		// List<Criteria> criteria = new ArrayList<>();
+		// for(Claim claim:claims){
+		// if(claim.getClaimStatus() != null) {
+		// criteria.add(Criteria.where("claim_status").is(claim.getClaimStatus()));
+		// }
+		// }
+		// query.addCriteria(new Criteria().andOperator(criteria.toArray(new
+		// Criteria[criteria.size()])));
+		//
+		// return mongoOperations.find(query, Claim.class);
+		if (startDate == null && endDate == null) {
+			for (Claim claim : claimList) {
+				map.put(claim.getClaimStatus(), map.getOrDefault(claim.getClaimStatus(), 0) + 1);
 			}
-		}
-		else{
-			for(Claim claim: claims){
-			 	map.put(claim.getClaimStatus(), map.getOrDefault(claim.getClaimStatus(),0)+1);
+		} else {
+			for (Claim claim : claims) {
+				map.put(claim.getClaimStatus(), map.getOrDefault(claim.getClaimStatus(), 0) + 1);
 			}
 		}
 		claimStatusAndCount.add(map);
 		return claimStatusAndCount;
 	}
 
-	public int claimCount(){
+	public int claimCount() {
 		List<Claim> claim = claimsRepository.findAll();
 		return claim.size();
 	}
 
-	public float totalClaimAmount(){
+	public float totalClaimAmount() {
 		float claimedAmount = 0;
 		List<Claim> claims = claimsRepository.findAll();
-		for(Claim claim:claims){
+		for (Claim claim : claims) {
 			claimedAmount += Float.parseFloat(claim.getClaimedAmount());
 		}
 		return claimedAmount;
 
 	}
-	public float totalPaidAmount(){
+
+	public float totalPaidAmount() {
 		float totalPaidAmount = 0;
 		List<Claim> claims = claimsRepository.findAll();
-		for(Claim claim:claims){
+		for (Claim claim : claims) {
 			totalPaidAmount += Float.parseFloat(claim.getPaidAmount());
 		}
 		return totalPaidAmount;
 
 	}
+
+	// Kafka Consumer
+	@KafkaListener(topics = "${spring.kafka.topic.name}", groupId = "${spring.kafka.consumer.group-id}")
+	public void consume(Claim message) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+
+			String jsonString = mapper.writeValueAsString(message);
+			System.out.println("Json message received using Kafka listener " + jsonString);
+
+			// claim.setServiceProviderClaimId(claimsSeqGeneratorSvc.generateSequence(Claim.SEQUENCE_NAME));
+			claimsRepository.save(message);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
 }

@@ -24,39 +24,45 @@ import java.util.Map;
  * The Class ClaimsController.
  */
 @RestController
-@CrossOrigin(origins="*")
+@CrossOrigin(origins = "*")
 @RequestMapping("/claims")
 public class ClaimsController {
-	
-	@Autowired
-	ConfigurationDetails configuration;
+
+	// @Autowired
+	// ConfigurationDetails configuration;
 	/** The claims services. */
 	@Autowired
 	private ClaimsServiceImpl claimsServices;
-	
+
 	/**
 	 * Gets the all claims.
 	 *
 	 * @return the all claims
 	 */
-	
-//	 @GetMapping("/endpoint")
-//	 public String dbDetails(){
-//	        return "Value: " + configuration.getValue();
-//	 }
-//	 @Value("${client.pseudo.property}")
-//	 private String pseudoProperty;
-//
-//	 @GetMapping("/property")
-//	 public ResponseEntity<String> getProperty() {
-//	        return ResponseEntity.ok(pseudoProperty);
-//	 }
-	@Timed(
-			value = "claims.getAll",
-			histogram = true,
-			percentiles = {0.95, 0.99},
-			extraTags = {"version", "1.0"}
-			)
+
+	// @GetMapping("/endpoint")
+	// public String dbDetails(){
+	// return "Value: " + configuration.getValue();
+	// }
+	// @Value("${client.pseudo.property}")
+	// private String pseudoProperty;
+	//
+	// @GetMapping("/property")
+	// public ResponseEntity<String> getProperty() {
+	// return ResponseEntity.ok(pseudoProperty);
+	// }
+	// @GetMapping("/endpoint")
+	// public String dbDetails(){
+	// return "Value: " + configuration.getValue();
+	// }
+	// @Value("${client.pseudo.property}")
+	// private String pseudoProperty;
+	//
+	// @GetMapping("/property")
+	// public ResponseEntity<String> getProperty() {
+	// return ResponseEntity.ok(pseudoProperty);
+	// }
+	@Timed(value = "claims.getAll", histogram = true, percentiles = { 0.95, 0.99 }, extraTags = { "version", "1.0" })
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Returns All Claims", notes = "JSON Supported", response = Claim.class)
@@ -73,17 +79,12 @@ public class ClaimsController {
 		claimDetails.setTotalClaimedAmount(String.valueOf(claimsServices.totalClaimAmount()));
 		claimDetails.setTotalPaidAmount(String.valueOf(claimsServices.totalPaidAmount()));
 		claimDetails.setTotalCount(String.valueOf(claimsServices.claimCount()));
-		return new ResponseEntity<List<Claim>>(claimsServices.getAllClaims(),new HttpHeaders(),
+		return new ResponseEntity<List<Claim>>(claimsServices.getAllClaims(), new HttpHeaders(),
 				HttpStatus.OK);
 	}
-	
-	//http://localhost:8100/claims/filter?page=1&size=4&sort=claimId
-	@Timed(
-			value = "claims.getAll",
-			histogram = true,
-			percentiles = {0.95, 0.99},
-			extraTags = {"version", "1.0"}
-			)
+
+	// http://localhost:8100/claims/filter?page=1&size=4&sort=claimId
+	@Timed(value = "claims.getAll", histogram = true, percentiles = { 0.95, 0.99 }, extraTags = { "version", "1.0" })
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Returns All Claims", notes = "JSON Supported", response = Claim.class)
@@ -95,73 +96,66 @@ public class ClaimsController {
 			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
 	@GetMapping("/filter")
-	public ResponseEntity<List<Claim>> getfilter(@RequestHeader Map<String, String> headers, @Param(value= "page") int page, @Param(value="size") int size, @Param(value="sort") String sort) {
-		
-		
+	public ResponseEntity<List<Claim>> getfilter(@RequestHeader Map<String, String> headers,
+			@Param(value = "page") int page, @Param(value = "size") int size, @Param(value = "sort") String sort) {
+
 		Claim claim = new Claim();
-		headers.forEach((key,value)->{  
-			
-			if(key.equalsIgnoreCase("claimId")) {
+		headers.forEach((key, value) -> {
+
+			if (key.equalsIgnoreCase("claimId")) {
 				claim.setClaimId(value);
-			}
-			else if(key.equalsIgnoreCase("facilityId")) {
+			} else if (key.equalsIgnoreCase("facilityId")) {
 				claim.setFacilityId(value);
 			}
-			
-			else if(key.equalsIgnoreCase("palletQuantity")) {
-				claim.setPalletQuantity(null!=value?Integer.parseInt(value):0);
+
+			else if (key.equalsIgnoreCase("palletQuantity")) {
+				claim.setPalletQuantity(null != value ? Integer.parseInt(value) : 0);
 			}
-			
-			else if(key.equalsIgnoreCase("documentType")) {
+
+			else if (key.equalsIgnoreCase("documentType")) {
 				claim.setDocumentType(value);
 			}
-			
-			else if(key.equalsIgnoreCase("claimedAmount")) {
+
+			else if (key.equalsIgnoreCase("claimedAmount")) {
 				claim.setClaimedAmount(value);
 			}
-			
-			else if(key.equalsIgnoreCase("serviceProviderClaimId")) {
+
+			else if (key.equalsIgnoreCase("serviceProviderClaimId")) {
 				claim.setServiceProviderClaimId(Long.parseLong(value));
 			}
-			
-			else if(key.equalsIgnoreCase("claimStatus")){
+
+			else if (key.equalsIgnoreCase("claimStatus")) {
 				claim.setClaimStatus(value);
 			}
-			
-			else if(key.equalsIgnoreCase("claimType")) {
+
+			else if (key.equalsIgnoreCase("claimType")) {
 				claim.setClaimType(value);
 			}
-			
-			else if(key.equalsIgnoreCase("lastUpdateId")) {
+
+			else if (key.equalsIgnoreCase("lastUpdateId")) {
 				claim.setLastUpdateId(value);
 			}
-			
-			else if(key.equalsIgnoreCase("createDate")) {
+
+			else if (key.equalsIgnoreCase("createDate")) {
 				claim.setCreatedDate(value);
 			}
-			
-			else if(key.equalsIgnoreCase("lastUpdateDate")) {
+
+			else if (key.equalsIgnoreCase("lastUpdateDate")) {
 				claim.setLastUpdateDate(value);
-			}
-			else if(key.equalsIgnoreCase("userId")) {
+			} else if (key.equalsIgnoreCase("userId")) {
 				claim.setUserId(value);
 			}
 		});
 		return claimsServices.getAllClaimsFilter(claim, page, size, sort);
 	}
-	
+
 	/**
 	 * Gets the claims by service provider claim id.
 	 *
 	 * @param serviceProviderClaimId the service provider claim id
 	 * @return the claims by service provider claim id
 	 */
-	@Timed(
-			value = "claims.getAll",
-			histogram = true,
-			percentiles = {0.95, 0.99},
-			extraTags = {"version", "1.0"}
-			)
+	@Timed(value = "claims.getAll", histogram = true, percentiles = { 0.95, 0.99 }, extraTags = { "version", "1.0" })
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Get Claim By Service Provider Claim Id", notes = "JSON Supported", response = Claim.class)
@@ -185,12 +179,7 @@ public class ClaimsController {
 	 * @param claim the claim
 	 * @return the response entity
 	 */
-	@Timed(
-			value = "claims.getAll",
-			histogram = true,
-			percentiles = {0.95, 0.99},
-			extraTags = {"version", "1.0"}
-			)
+	@Timed(value = "claims.getAll", histogram = true, percentiles = { 0.95, 0.99 }, extraTags = { "version", "1.0" })
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Create Claim", notes = "JSON Supported", response = Claim.class)
@@ -214,12 +203,7 @@ public class ClaimsController {
 	 * @param claim   the claim
 	 * @return the response entity
 	 */
-	@Timed(
-			value = "claims.getAll",
-			histogram = true,
-			percentiles = {0.95, 0.99},
-			extraTags = {"version", "1.0"}
-			)
+	@Timed(value = "claims.getAll", histogram = true, percentiles = { 0.95, 0.99 }, extraTags = { "version", "1.0" })
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Update Claim", notes = "JSON Supported", response = Claim.class)
@@ -243,12 +227,7 @@ public class ClaimsController {
 	 * @param claimId the claim id
 	 * @return the string
 	 */
-	@Timed(
-			value = "claims.getAll",
-			histogram = true,
-			percentiles = {0.95, 0.99},
-			extraTags = {"version", "1.0"}
-			)
+	@Timed(value = "claims.getAll", histogram = true, percentiles = { 0.95, 0.99 }, extraTags = { "version", "1.0" })
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Delete Claim", notes = "JSON Supported", response = Claim.class)
@@ -271,12 +250,7 @@ public class ClaimsController {
 	 * @param customerClaimId the customer claim id
 	 * @return the claims by customer claim id
 	 */
-	@Timed(
-			value = "claims.getAll",
-			histogram = true,
-			percentiles = {0.95, 0.99},
-			extraTags = {"version", "1.0"}
-			)
+	@Timed(value = "claims.getAll", histogram = true, percentiles = { 0.95, 0.99 }, extraTags = { "version", "1.0" })
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Get Claims By Customer Claim Id", notes = "JSON Supported", response = Claim.class)
@@ -290,22 +264,17 @@ public class ClaimsController {
 	@GetMapping("/customer/{claimId}")
 	public ResponseEntity<Claim> getClaimsByCustomerClaimId(
 			@ApiParam(value = "Customer Claim Id", required = true) @PathVariable("claimId") String claimId) {
-		return new ResponseEntity<Claim>(claimsServices.getCustomerClaim(claimId),new HttpHeaders(),
+		return new ResponseEntity<Claim>(claimsServices.getCustomerClaim(claimId), new HttpHeaders(),
 				HttpStatus.OK);
 	}
-	
-	
+
 	/**
 	 * Gets the claims by facility id.
+	 * 
 	 * @param facilityId the facility id
 	 * @return the claims by facility id
 	 */
-	@Timed(
-			value = "claims.getAll",
-			histogram = true,
-			percentiles = {0.95, 0.99},
-			extraTags = {"version", "1.0"}
-			)
+	@Timed(value = "claims.getAll", histogram = true, percentiles = { 0.95, 0.99 }, extraTags = { "version", "1.0" })
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Get Claims By Facility Id", notes = "JSON Supported", response = Claim.class)
@@ -321,17 +290,13 @@ public class ClaimsController {
 			@ApiParam(value = "Facility Id", required = true) @PathVariable("facilityId") String facilityId) {
 		return claimsServices.getFacilityClaim(facilityId);
 	}
-	
+
 	/**
 	 * Gets all the claims by claim status.
+	 * 
 	 * @return all the claims by claim status
 	 */
-	@Timed(
-			value = "claims.getAll",
-			histogram = true,
-			percentiles = {0.95, 0.99},
-			extraTags = {"version", "1.0"}
-			)
+	@Timed(value = "claims.getAll", histogram = true, percentiles = { 0.95, 0.99 }, extraTags = { "version", "1.0" })
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Returns All Claims status", notes = "JSON Supported", response = Claim.class)
@@ -343,10 +308,9 @@ public class ClaimsController {
 			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
 	@GetMapping("/claim-status")
-	public ResponseEntity<List<Claim>> getAllClaimsByClaimStatus(){
+	public ResponseEntity<List<Claim>> getAllClaimsByClaimStatus() {
 		return claimsServices.getAllClaimsByStatus();
 	}
-
 
 	/**
 	 * Gets the claims by claim status.
@@ -354,12 +318,7 @@ public class ClaimsController {
 	 * @param claimStatus the claim status
 	 * @return the claims by claim status
 	 */
-	@Timed(
-			value = "claims.getAll",
-			histogram = true,
-			percentiles = {0.95, 0.99},
-			extraTags = {"version", "1.0"}
-			)
+	@Timed(value = "claims.getAll", histogram = true, percentiles = { 0.95, 0.99 }, extraTags = { "version", "1.0" })
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Get Claims By Status", notes = "JSON Supported", response = Claim.class)
@@ -376,18 +335,14 @@ public class ClaimsController {
 		return claimsServices.getClaimsByStatus(claimStatus);
 
 	}
+
 	/**
 	 * Gets the claims by claim type.
 	 *
 	 * @param claimType the claim type
 	 * @return the claims by claim type
 	 */
-	@Timed(
-			value = "claims.getAll",
-			histogram = true,
-			percentiles = {0.95, 0.99},
-			extraTags = {"version", "1.0"}
-			)
+	@Timed(value = "claims.getAll", histogram = true, percentiles = { 0.95, 0.99 }, extraTags = { "version", "1.0" })
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Get Claims By Type", notes = "JSON Supported", response = Claim.class)
@@ -410,12 +365,7 @@ public class ClaimsController {
 	 * @param documentType the document type
 	 * @return the claims by document type
 	 */
-	@Timed(
-			value = "claims.getAll",
-			histogram = true,
-			percentiles = {0.95, 0.99},
-			extraTags = {"version", "1.0"}
-			)
+	@Timed(value = "claims.getAll", histogram = true, percentiles = { 0.95, 0.99 }, extraTags = { "version", "1.0" })
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Get Claims By Document Type", notes = "JSON Supported", response = Claim.class)
@@ -438,22 +388,33 @@ public class ClaimsController {
 	 * @param creatorId the creator id
 	 * @return the claims by creator id
 	 */
-//	@ResponseBody
-//	@ResponseStatus(HttpStatus.OK)
-//	@ApiOperation(value = "Get Claims By Creator Id", notes = "JSON Supported", response = Claim.class)
-//	@ApiResponses({ @ApiResponse(code = 200, message = "success", response = Claim.class),
-//			@ApiResponse(code = 400, message = "bad-request", response = ErrorDetails.class),
-//			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
-//			@ApiResponse(code = 403, message = "Claims service requires authentication - please check username and password", response = ErrorDetails.class),
-//			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
-//			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
-//			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
-//	@GetMapping("/claims/creator/{creatorId}")
-//	public ResponseEntity<Claim> getClaimsByCreatorId(
-//			@ApiParam(value = "Claim Creator Id", required = true) @PathVariable String creatorId) {
-//		return new ResponseEntity<Claim>(claimsServices.getClaimByCreator(creatorId),new HttpHeaders(),
-//				HttpStatus.OK);
-//	}
+	// @ResponseBody
+	// @ResponseStatus(HttpStatus.OK)
+	// @ApiOperation(value = "Get Claims By Creator Id", notes = "JSON Supported",
+	// response = Claim.class)
+	// @ApiResponses({ @ApiResponse(code = 200, message = "success", response =
+	// Claim.class),
+	// @ApiResponse(code = 400, message = "bad-request", response =
+	// ErrorDetails.class),
+	// @ApiResponse(code = 401, message = "Unauthorized", response =
+	// ErrorDetails.class),
+	// @ApiResponse(code = 403, message = "Claims service requires authentication -
+	// please check username and password", response = ErrorDetails.class),
+	// @ApiResponse(code = 404, message = "Data not found", response =
+	// ErrorDetails.class),
+	// @ApiResponse(code = 405, message = "Method not allowed", response =
+	// ErrorDetails.class),
+	// @ApiResponse(code = 500, message = "Internal server error", response =
+	// ErrorDetails.class) })
+	// @GetMapping("/claims/creator/{creatorId}")
+	// public ResponseEntity<Claim> getClaimsByCreatorId(
+	// @ApiParam(value = "Claim Creator Id", required = true) @PathVariable String
+	// creatorId) {
+	// return new
+	// ResponseEntity<Claim>(claimsServices.getClaimByCreator(creatorId),new
+	// HttpHeaders(),
+	// HttpStatus.OK);
+	// }
 
 	/**
 	 * Gets the claims by closed date.
@@ -461,12 +422,7 @@ public class ClaimsController {
 	 * @param closedDate the closed date
 	 * @return the claims by closed date
 	 */
-	@Timed(
-			value = "claims.getAll",
-			histogram = true,
-			percentiles = {0.95, 0.99},
-			extraTags = {"version", "1.0"}
-			)
+	@Timed(value = "claims.getAll", histogram = true, percentiles = { 0.95, 0.99 }, extraTags = { "version", "1.0" })
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Get Claims By Closed Date", notes = "JSON Supported", response = Claim.class)
@@ -489,12 +445,7 @@ public class ClaimsController {
 	 * @param createDate the create date
 	 * @return the claims by create date
 	 */
-	@Timed(
-			value = "claims.getAll",
-			histogram = true,
-			percentiles = {0.95, 0.99},
-			extraTags = {"version", "1.0"}
-			)
+	@Timed(value = "claims.getAll", histogram = true, percentiles = { 0.95, 0.99 }, extraTags = { "version", "1.0" })
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Get Claims By Create Date", notes = "JSON Supported", response = Claim.class)
@@ -510,10 +461,12 @@ public class ClaimsController {
 			@ApiParam(value = "Claim Create Date", required = true) @PathVariable("createdDate") String createdDate) {
 		return claimsServices.getClaimsByCreateDate(createdDate);
 	}
-	
 
-	
-	
+	// post for Kafka
+	@PostMapping
+	public void publish(Claim claim) {
+		claimsServices.consume(claim);
+	}
 
 	/**
 	 * Gets the claims by date range.
@@ -536,10 +489,11 @@ public class ClaimsController {
 	public ResponseEntity<List<Map>> getClaimsByDateRange(
 			@ApiParam(value = "Claim Start and End Date", required = false) @RequestParam("startDate") String startDate,
 			@RequestParam("endDate") String endDate) {
-		return new ResponseEntity<List<Map>>(claimsServices.getClaimsByDateRange(startDate,endDate), new HttpHeaders(),
+		return new ResponseEntity<List<Map>>(claimsServices.getClaimsByDateRange(startDate, endDate), new HttpHeaders(),
 				HttpStatus.OK);
 
 	}
+
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Get Claims Count ", notes = "JSON Supported", response = Claim.class)
@@ -551,7 +505,7 @@ public class ClaimsController {
 			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
 	@GetMapping("/claimscount")
-	public int claimsCount(){
+	public int claimsCount() {
 		return claimsServices.claimCount();
 	}
 
@@ -566,9 +520,10 @@ public class ClaimsController {
 			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
 	@GetMapping("/totalclaimamount")
-	public float totalClaimsAmount(){
+	public float totalClaimsAmount() {
 		return claimsServices.totalClaimAmount();
 	}
+
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Get Total Claim Amount", notes = "JSON Supported", response = Claim.class)
@@ -580,21 +535,31 @@ public class ClaimsController {
 			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
 	@GetMapping("/totalpaidamount")
-	public float totalPaidAmount(){
+	public float totalPaidAmount() {
 		return claimsServices.totalPaidAmount();
 	}
-//	@ResponseBody
-//	@ResponseStatus(HttpStatus.OK)
-//	@ApiOperation(value = "Get Claims By Claimed amount and claim status", notes = "JSON Supported", response = Claim.class)
-//	@ApiResponses({ @ApiResponse(code = 200, message = "success", response = Claim.class),
-//			@ApiResponse(code = 400, message = "bad-request", response = ErrorDetails.class),
-//			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
-//			@ApiResponse(code = 403, message = "Claims service requires authentication - please check username and password", response = ErrorDetails.class),
-//			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
-//			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
-//			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
-//	@GetMapping("/claims/")
-//	public ResponseEntity<List<Claim>> getClaimsByClaimedAmountAndStatus(String claimedAmount, String claimStatus) {
-//		return claimsServices.getClaimsByClaimedAmountAndStatus(claimedAmount,claimStatus);
-//	}
+	// @ResponseBody
+	// @ResponseStatus(HttpStatus.OK)
+	// @ApiOperation(value = "Get Claims By Claimed amount and claim status", notes
+	// = "JSON Supported", response = Claim.class)
+	// @ApiResponses({ @ApiResponse(code = 200, message = "success", response =
+	// Claim.class),
+	// @ApiResponse(code = 400, message = "bad-request", response =
+	// ErrorDetails.class),
+	// @ApiResponse(code = 401, message = "Unauthorized", response =
+	// ErrorDetails.class),
+	// @ApiResponse(code = 403, message = "Claims service requires authentication -
+	// please check username and password", response = ErrorDetails.class),
+	// @ApiResponse(code = 404, message = "Data not found", response =
+	// ErrorDetails.class),
+	// @ApiResponse(code = 405, message = "Method not allowed", response =
+	// ErrorDetails.class),
+	// @ApiResponse(code = 500, message = "Internal server error", response =
+	// ErrorDetails.class) })
+	// @GetMapping("/claims/")
+	// public ResponseEntity<List<Claim>> getClaimsByClaimedAmountAndStatus(String
+	// claimedAmount, String claimStatus) {
+	// return
+	// claimsServices.getClaimsByClaimedAmountAndStatus(claimedAmount,claimStatus);
+	// }
 }
