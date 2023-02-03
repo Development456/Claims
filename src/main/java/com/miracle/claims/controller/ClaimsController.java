@@ -54,17 +54,17 @@ public class ClaimsController {
 	 * @return the all claims
 	 */
 	
-	 @GetMapping("/endpoint")
-	 public String dbDetails(){
-	        return "Value: " + configuration.getValue();
-	 }
-	 @Value("${client.pseudo.property}")
-	 private String pseudoProperty;
-
-	 @GetMapping("/property")
-	 public ResponseEntity<String> getProperty() {
-	        return ResponseEntity.ok(pseudoProperty);
-	 }
+//	 @GetMapping("/endpoint")
+//	 public String dbDetails(){
+//	        return "Value: " + configuration.getValue();
+//	 }
+//	 @Value("${client.pseudo.property}")
+//	 private String pseudoProperty;
+//
+//	 @GetMapping("/property")
+//	 public ResponseEntity<String> getProperty() {
+//	        return ResponseEntity.ok(pseudoProperty);
+//	 }
 	@Timed(
 			value = "claims.getAll",
 			histogram = true,
@@ -152,8 +152,8 @@ public class ClaimsController {
 			else if(key.equalsIgnoreCase("lastUpdateDate")) {
 				claim.setLastUpdateDate(value);
 			}
-			else if(key.equalsIgnoreCase("user_id")) {
-				claim.setLastUpdateDate(value);
+			else if(key.equalsIgnoreCase("userId")) {
+				claim.setUserId(value);
 			}
 		});
 		return claimsServices.getAllClaimsFilter(claim, page, size, sort);

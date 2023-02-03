@@ -80,6 +80,9 @@ public class ClaimsServiceImpl implements ClaimsService {
 		if(claim.getCreatedDate() !=null ) {
 			criteria.add(Criteria.where("create_date").is(claim.getCreatedDate()));
 		}
+		if(claim.getUserId() !=null ) {
+			criteria.add(Criteria.where("user_id").is(claim.getUserId()));
+		}
 		
 		query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[criteria.size()])));
 		
@@ -110,6 +113,9 @@ public class ClaimsServiceImpl implements ClaimsService {
 			claims.setPalletQuantity(claim.getPalletQuantity());
 			claims.setClaimedAmount(claim.getClaimedAmount());
 			claims.setClaimType(claim.getClaimType());
+			claims.setPaidAmount(claim.getPaidAmount());
+            claims.setCreatedDate(claim.getCreatedDate());
+			claims.setCustomerId(claim.getCustomerId());
 			claimsRepository.save(claims);
 			return new ResponseEntity<Claim>(HttpStatus.OK);
 		} catch (Exception e) {
