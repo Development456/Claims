@@ -31,7 +31,7 @@ public class Claim {
 	public static final String SEQUENCE_NAME = "claim_id_sequence";
 
 	@Id
-//	@Field("_id")
+	@Field("_id")
 	private String _id;
 
 	@ApiModelProperty(required = true, value = "customer claim id", name = "claimId", dataType = "String", example = "1234")

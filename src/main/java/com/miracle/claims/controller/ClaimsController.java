@@ -1,38 +1,23 @@
 package com.miracle.claims.controller;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.repository.query.Param;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.miracle.claims.beans.Claim;
 import com.miracle.claims.config.ConfigurationDetails;
 import com.miracle.claims.exception.ErrorDetails;
 import com.miracle.claims.service.ClaimsServiceImpl;
-
 import io.micrometer.core.annotation.Timed;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * The Class ClaimsController.
@@ -183,7 +168,7 @@ public class ClaimsController {
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
 	@GetMapping("/{serviceProviderClaimId}")
 	public ResponseEntity<Claim> getClaimsByServiceProviderClaimId(
-			@ApiParam(value = "Service Provide Claim Id", required = true) @PathVariable Long serviceProviderClaimId) {
+			@ApiParam(value = "Service Provide Claim Id", required = true) @PathVariable long serviceProviderClaimId) {
 		return new ResponseEntity<Claim>(claimsServices.getClaim(serviceProviderClaimId), new HttpHeaders(),
 				HttpStatus.OK);
 	}
@@ -519,6 +504,10 @@ public class ClaimsController {
 			@ApiParam(value = "Claim Create Date", required = true) @PathVariable("createdDate") String createdDate) {
 		return claimsServices.getClaimsByCreateDate(createdDate);
 	}
+	
+
+	
+	
 
 	/**
 	 * Gets the claims by date range.

@@ -2,6 +2,7 @@ package com.miracle.claims.service;
 
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 
@@ -19,7 +20,7 @@ public ResponseEntity<List<Claim>> getAllClaimsFilter(Claim claim, int page, int
 	
 	public String deleteClaims(Long serviceProviderClaimId);
 	
-	public Claim getClaim(Long serviceProviderClaimId);
+	public Claim getClaim(long serviceProviderClaimId);
 
 	public ResponseEntity<List<Claim>> getClaimsByType(String claimType);
 

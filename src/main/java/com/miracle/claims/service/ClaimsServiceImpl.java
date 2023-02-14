@@ -2,6 +2,7 @@ package com.miracle.claims.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -103,7 +104,7 @@ public class ClaimsServiceImpl implements ClaimsService {
 	@Override
 	public ResponseEntity<Claim> updateClaims(Long claimId, Claim claim) {
 		try {
-			Claim claims = claimsRepository.findByServiceProviderClaimId(claimId);
+			Claim claims = claimsRepository.findById(claimId);
 			System.out.println("this is service pro" + claims.getServiceProviderClaimId());
 			// log.info("this is the output" + claims.getClaimId());
 			claims.setClaimId(claim.getClaimId());
@@ -125,14 +126,14 @@ public class ClaimsServiceImpl implements ClaimsService {
 
 	// delete
 	@Override
-	public String deleteClaims(Long ServiceProviderClaimId) {
-		claimsRepository.deleteByServiceProviderClaimId(ServiceProviderClaimId);
-		return "claim deleted with id : " + ServiceProviderClaimId;
+	public String deleteClaims(Long serviceProviderClaimId) {
+		claimsRepository.deleteByServiceProviderClaimId(serviceProviderClaimId);
+		return "claim deleted with id : " + serviceProviderClaimId;
 	}
 
 	@Override
-	public Claim getClaim(Long serverProviderClaimId) {
-		Claim claim = claimsRepository.findByServiceProviderClaimId(serverProviderClaimId);
+	public Claim getClaim(long serviceProviderClaimId) {
+		Claim claim = claimsRepository.findByServiceProviderClaimId(serviceProviderClaimId);
 		return claim;
 	}
 	@Override

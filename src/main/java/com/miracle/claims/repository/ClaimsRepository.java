@@ -2,6 +2,7 @@ package com.miracle.claims.repository;
 
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -11,8 +12,11 @@ import com.miracle.claims.beans.Claim;
 @Repository
 public interface ClaimsRepository extends MongoRepository<Claim, String> {
 
-	public Claim deleteByServiceProviderClaimId(long serverProviderClaimId);
-	public Claim findByServiceProviderClaimId(long serverProviderClaimId);
+	public Claim deleteByServiceProviderClaimId(long serviceProviderClaimId);
+	
+	@Query("{service_provider_claim_id : ?0}")
+	public Claim findByServiceProviderClaimId(long serviceProviderClaimId);
+	
 	@Query("{facility_id : ?0}")
 	public List<Claim> findByFacilityId(String facilityId);
 	
@@ -40,6 +44,9 @@ public interface ClaimsRepository extends MongoRepository<Claim, String> {
 	public List<Claim> findByClosedDate(String closedDate);
 //	@Query("{claimedAmount: ?0, claimStatus: ?1}")
 //	public List<Claim> findByClaimedAmountandStatus(String claimedAmount, String claimStatus);
+	
+	@Query("{claim_id :?0}")
+	public Claim findById(Long claimId);
 		
 
 }
