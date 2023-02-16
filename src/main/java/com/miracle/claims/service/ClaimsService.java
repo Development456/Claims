@@ -9,7 +9,11 @@ import com.miracle.claims.beans.Claim;
 
 public interface ClaimsService {
 	
-public ResponseEntity<List<Claim>> getAllClaimsFilter(Claim claim, int page, int size, String sort);
+	public float paidAmount();
+	
+	public List<String> uniqueDates();
+	
+	public int countOfFacility();
 	
 	public ResponseEntity<List<Claim>> getAllClaimsByStatus();
 	
@@ -19,7 +23,7 @@ public ResponseEntity<List<Claim>> getAllClaimsFilter(Claim claim, int page, int
 	
 	public String deleteClaims(Long serviceProviderClaimId);
 	
-	public Claim getClaim(Long serviceProviderClaimId);
+	public List<Claim> getClaim(Long serviceProviderClaimId);
 
 	public ResponseEntity<List<Claim>> getClaimsByType(String claimType);
 
@@ -37,6 +41,8 @@ public ResponseEntity<List<Claim>> getAllClaimsFilter(Claim claim, int page, int
 	public ResponseEntity<List<Claim>> getAllMessagesPaginated(int start, int size);
 
 	ResponseEntity<List<Claim>> getAllClaims();
+
+	ResponseEntity<List<Claim>> getAllClaimsFilter(Claim claim, int page, int size, String sort);
 
 
 //	public ResponseEntity<List<Claim>> getClaimsByClaimedAmountAndStatus(String claimedAmount, String claimStatus);

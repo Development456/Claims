@@ -34,6 +34,17 @@ public class ClaimsServiceImpl implements ClaimsService {
 
 	@Autowired
 	ClaimsSequenceGeneratorService claimsSeqGeneratorSvc;
+	
+	
+	@Override
+	public float paidAmount() {
+		float paidAmount = 0;
+		List<Claim> claim = claimsRepository.findAll();
+		for(Claim cl: claim) {
+			paidAmount = paidAmount + Float.parseFloat(cl.getPaidAmount());
+		}
+		return paidAmount;
+	}
 
 	// get the list of all
 	@Override
@@ -130,8 +141,14 @@ public class ClaimsServiceImpl implements ClaimsService {
 	}
 
 	@Override
-	public Claim getClaim(Long serverProviderClaimId) {
-		Claim claim = claimsRepository.findByServiceProviderClaimId(serverProviderClaimId);
+	public List<Claim> getClaim(Long serverProviderClaimId) {
+		
+		Query query = new Query();
+		List<Criteria> criteria = new ArrayList<>();
+		criteria.add(Criteria.where("service_provider_claim_id").is(serverProviderClaimId));
+		query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[criteria.size()])));
+		List<Claim> claim = mongoOperations.find(query, Claim.class);
+		
 		return claim;
 	}
 	@Override
@@ -252,6 +269,20 @@ public class ClaimsServiceImpl implements ClaimsService {
 		}
 		
 		
+	}
+
+
+	@Override
+	public List<String> uniqueDates() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public int countOfFacility() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 

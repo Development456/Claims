@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 import com.miracle.claims.beans.Claim;
 @Repository
 public interface ClaimsRepository extends MongoRepository<Claim, String> {
+	
+	
 
 	public Claim deleteByServiceProviderClaimId(long serverProviderClaimId);
 	public Claim findByServiceProviderClaimId(long serverProviderClaimId);

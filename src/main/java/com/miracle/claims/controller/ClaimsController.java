@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.miracle.claims.beans.Claim;
-import com.miracle.claims.config.ConfigurationDetails;
 import com.miracle.claims.exception.ErrorDetails;
 import com.miracle.claims.service.ClaimsServiceImpl;
 
@@ -65,6 +63,31 @@ public class ClaimsController {
 //	 public ResponseEntity<String> getProperty() {
 //	        return ResponseEntity.ok(pseudoProperty);
 //	 }
+	@Timed(
+			value = "claims.paidAmount",
+			histogram = true,
+			percentiles = {0.95, 0.99},
+			extraTags = {"version", "1.0"}
+			)
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "return tha total paid amount of claims", notes = "JSON Supported", response = Claim.class)
+	@ApiResponses({ @ApiResponse(code = 200, message = "success", response = Claim.class),
+			@ApiResponse(code = 400, message = "bad-request", response = ErrorDetails.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
+			@ApiResponse(code = 403, message = "Claims service requires authentication - please check username and password", response = ErrorDetails.class),
+			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
+			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
+			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
+	@GetMapping("/totalpaidamount")
+	public float paidAmount() {
+		return claimsServices.paidAmount();
+	}
+	
+	
+	
+	
+	
 	@Timed(
 			value = "claims.getAll",
 			histogram = true,
@@ -179,9 +202,9 @@ public class ClaimsController {
 			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
 	@GetMapping("/{serviceProviderClaimId}")
-	public ResponseEntity<Claim> getClaimsByServiceProviderClaimId(
-			@ApiParam(value = "Service Provide Claim Id", required = true) @PathVariable Long serviceProviderClaimId) {
-		return new ResponseEntity<Claim>(claimsServices.getClaim(serviceProviderClaimId), new HttpHeaders(),
+	public ResponseEntity<List<Claim>> getClaimsByServiceProviderClaimId(
+			@ApiParam(value = "Service Provider Claim Id", required = true) @PathVariable Long serviceProviderClaimId) {
+		return new ResponseEntity<List<Claim>>(claimsServices.getClaim(serviceProviderClaimId), new HttpHeaders(),
 				HttpStatus.OK);
 	}
 
