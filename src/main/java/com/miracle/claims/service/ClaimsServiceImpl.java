@@ -12,9 +12,12 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.annotation.KafkaListener;
+//import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miracle.claims.beans.Claim;
 import com.miracle.claims.repository.ClaimsRepository;
 
@@ -31,6 +34,17 @@ public class ClaimsServiceImpl implements ClaimsService {
 
 	@Autowired
 	ClaimsSequenceGeneratorService claimsSeqGeneratorSvc;
+	
+	
+	@Override
+	public float paidAmount() {
+		float paidAmount = 0;
+		List<Claim> claim = claimsRepository.findAll();
+		for(Claim cl: claim) {
+			paidAmount = paidAmount + Float.parseFloat(cl.getPaidAmount());
+		}
+		return paidAmount;
+	}
 
 	// get the list of all
 	@Override
@@ -110,6 +124,8 @@ public class ClaimsServiceImpl implements ClaimsService {
 			claims.setPalletQuantity(claim.getPalletQuantity());
 			claims.setClaimedAmount(claim.getClaimedAmount());
 			claims.setClaimType(claim.getClaimType());
+			claims.setPaidAmount(claim.getPaidAmount());
+			claims.setCreatedDate(claim.getCreatedDate());
 			claimsRepository.save(claims);
 			return new ResponseEntity<Claim>(HttpStatus.OK);
 		} catch (Exception e) {
@@ -125,8 +141,14 @@ public class ClaimsServiceImpl implements ClaimsService {
 	}
 
 	@Override
-	public Claim getClaim(Long serverProviderClaimId) {
-		Claim claim = claimsRepository.findByServiceProviderClaimId(serverProviderClaimId);
+	public List<Claim> getClaim(Long serverProviderClaimId) {
+		
+		Query query = new Query();
+		List<Criteria> criteria = new ArrayList<>();
+		criteria.add(Criteria.where("service_provider_claim_id").is(serverProviderClaimId));
+		query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[criteria.size()])));
+		List<Claim> claim = mongoOperations.find(query, Claim.class);
+		
 		return claim;
 	}
 	@Override
@@ -226,5 +248,42 @@ public class ClaimsServiceImpl implements ClaimsService {
 		ArrayList<Claim> paginatedMsg = new ArrayList<Claim>(claimsRepository.findAll());
 		return new ResponseEntity<List<Claim>>(paginatedMsg.subList(start, start + size), new HttpHeaders(), HttpStatus.OK);
 	}
+	
+	//Kafka Consumer
+	@KafkaListener(topics = "${spring.kafka.topic.name}",
+			groupId = "${spring.kafka.consumer.group-id}")
+	public void consume(Claim message) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			
+			
+			String jsonString = mapper.writeValueAsString(message);
+			System.out.println("Json message received using Kafka listener " + jsonString);
+			
+			
+			//claim.setServiceProviderClaimId(claimsSeqGeneratorSvc.generateSequence(Claim.SEQUENCE_NAME));
+			claimsRepository.save(message);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
+
+
+	@Override
+	public List<String> uniqueDates() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public int countOfFacility() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
 
 }
