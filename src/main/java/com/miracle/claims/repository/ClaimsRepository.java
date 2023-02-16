@@ -1,14 +1,12 @@
 package com.miracle.claims.repository;
 
 
-import java.util.List;
-import java.util.Optional;
-
+import com.miracle.claims.beans.Claim;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.miracle.claims.beans.Claim;
+import java.util.List;
 @Repository
 public interface ClaimsRepository extends MongoRepository<Claim, String> {
 
@@ -21,7 +19,9 @@ public interface ClaimsRepository extends MongoRepository<Claim, String> {
 	public List<Claim> findByFacilityId(String facilityId);
 	
 	@Query(value= "{}",fields="{claim_status : 1}")
-	public List<Claim> findClaimsbyStatus();
+	public List<Claim> findClaimsByStatus();
+	@Query(value="{claim_amount: ?0}", fields="{claim_amount}")
+	public long totalClaimAmount(int claimAmount);
 	
 	@Query("{claim_status : ?0}")
 	public List<Claim> findByStatus(String claimStatus);
@@ -44,9 +44,13 @@ public interface ClaimsRepository extends MongoRepository<Claim, String> {
 	public List<Claim> findByClosedDate(String closedDate);
 //	@Query("{claimedAmount: ?0, claimStatus: ?1}")
 //	public List<Claim> findByClaimedAmountandStatus(String claimedAmount, String claimStatus);
+
+	@Query("create_date: {$gte: ?0, $lte: ?1}")
+	public List<Claim> findByDateRange(String startDate, String endDate);
+
 	
 	@Query("{claim_id :?0}")
 	public Claim findById(Long claimId);
-		
+
 
 }

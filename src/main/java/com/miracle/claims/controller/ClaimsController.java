@@ -516,24 +516,53 @@ public class ClaimsController {
 	 * @param endDate   the end date
 	 * @return the claims by date range
 	 */
-//	@ResponseBody
-//	@ResponseStatus(HttpStatus.OK)
-//	@ApiOperation(value = "Get Claims By Start and End Date", notes = "JSON Supported", response = Claim.class)
-//	@ApiResponses({ @ApiResponse(code = 200, message = "success", response = Claim.class),
-//			@ApiResponse(code = 400, message = "bad-request", response = ErrorDetails.class),
-//			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
-//			@ApiResponse(code = 403, message = "Claims service requires authentication - please check username and password", response = ErrorDetails.class),
-//			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
-//			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
-//			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
-//	@GetMapping("/claims/date-range")
-//	public ResponseEntity<List<Claim>> getClaimsByDateRange(
-//			@ApiParam(value = "Claim Start and End Date", required = true) @RequestParam("startDate") String startDate,
-//			@RequestParam("endDate") String endDate) {
-//		return null;
-//		
-//	}
-	
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Get Claims By Start and End Date", notes = "JSON Supported", response = Claim.class)
+	@ApiResponses({ @ApiResponse(code = 200, message = "success", response = Claim.class),
+			@ApiResponse(code = 400, message = "bad-request", response = ErrorDetails.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
+			@ApiResponse(code = 403, message = "Claims service requires authentication - please check username and password", response = ErrorDetails.class),
+			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
+			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
+			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
+	@GetMapping("/claims/analytics")
+	public ResponseEntity<List<Claim>> getClaimsByDateRange(
+			@ApiParam(value = "Claim Start and End Date", required = false) @RequestParam("startDate") String startDate,
+			@RequestParam("endDate") String endDate) {
+		return new ResponseEntity<List<Claim>>(claimsServices.getClaimsByDateRange(startDate,endDate), new HttpHeaders(),
+				HttpStatus.OK);
+
+	}
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Get Claims Count ", notes = "JSON Supported", response = Claim.class)
+	@ApiResponses({ @ApiResponse(code = 200, message = "success", response = Claim.class),
+			@ApiResponse(code = 400, message = "bad-request", response = ErrorDetails.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
+			@ApiResponse(code = 403, message = "Claims service requires authentication - please check username and password", response = ErrorDetails.class),
+			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
+			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
+			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
+	@GetMapping("/count")
+	public int claimsCount(){
+		return claimsServices.claimCount();
+	}
+
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Get Total Claim Amount", notes = "JSON Supported", response = Claim.class)
+	@ApiResponses({ @ApiResponse(code = 200, message = "success", response = Claim.class),
+			@ApiResponse(code = 400, message = "bad-request", response = ErrorDetails.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
+			@ApiResponse(code = 403, message = "Claims service requires authentication - please check username and password", response = ErrorDetails.class),
+			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
+			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
+			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
+	@GetMapping("/totalclaimamount")
+	public float totalClaimsAmount(){
+		return claimsServices.totalClaimAmount();
+	}
 	
 //	@ResponseBody
 //	@ResponseStatus(HttpStatus.OK)

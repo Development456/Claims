@@ -1,9 +1,7 @@
 package com.miracle.claims.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
+import com.miracle.claims.beans.Claim;
+import com.miracle.claims.repository.ClaimsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,8 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import com.miracle.claims.beans.Claim;
-import com.miracle.claims.repository.ClaimsRepository;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @Service
@@ -38,7 +36,7 @@ public class ClaimsServiceImpl implements ClaimsService {
 	public ResponseEntity<List<Claim>> getAllClaims() {
 		
 		List<Claim> claim = claimsRepository.findAll();
-		return new ResponseEntity<List<Claim>>(claim , new HttpHeaders(), HttpStatus.OK);
+		return new ResponseEntity<>(claim , new HttpHeaders(), HttpStatus.OK);
 	}
 	
 	
@@ -133,17 +131,16 @@ public class ClaimsServiceImpl implements ClaimsService {
 
 	@Override
 	public Claim getClaim(long serviceProviderClaimId) {
-		Claim claim = claimsRepository.findByServiceProviderClaimId(serviceProviderClaimId);
-		return claim;
+		return claimsRepository.findByServiceProviderClaimId(serviceProviderClaimId);
 	}
 	@Override
 	public ResponseEntity<List<Claim>> getFacilityClaim(String facilityId) {
 		// TODO Auto-generated method stub
 		List<Claim> list = new ArrayList<>();
 		if(facilityId == null) {
-			claimsRepository.findAll().forEach(list::add);
+			list.addAll(claimsRepository.findAll());
 		}else {
-			claimsRepository.findByFacilityId(facilityId).forEach(list::add);
+			list.addAll(claimsRepository.findByFacilityId(facilityId));
 		}		
 		return new ResponseEntity<>(list,new HttpHeaders(), HttpStatus.OK); 
 
@@ -153,9 +150,9 @@ public class ClaimsServiceImpl implements ClaimsService {
 	public ResponseEntity<List<Claim>> getClaimsByStatus(String claimStatus) {
 		List<Claim> list = new ArrayList<>(); 
 		if(claimStatus == null) {
-			claimsRepository.findAll().forEach(list::add);
+			list.addAll(claimsRepository.findAll());
 		}else {
-			claimsRepository.findByStatus(claimStatus).forEach(list::add);
+			list.addAll(claimsRepository.findByStatus(claimStatus));
 		}
 		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 	}
@@ -163,25 +160,25 @@ public class ClaimsServiceImpl implements ClaimsService {
 	@Override
 	public ResponseEntity<List<Claim>> getClaimsByType(String claimType) {
 		List<Claim> list = new ArrayList<>();
-		if(claimType == null) {	
-			claimsRepository.findAll().forEach(list::add);
+		if(claimType == null) {
+			list.addAll(claimsRepository.findAll());
 		}
 		else {
-			claimsRepository.findByType(claimType).forEach(list::add);
+			list.addAll(claimsRepository.findByType(claimType));
 		}	
-		return new ResponseEntity<List<Claim>>(list, new HttpHeaders(), HttpStatus.OK);
+		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 	}
 	
 	@Override
 	public ResponseEntity<List<Claim>> getClaimsByDocumentType(String documentType) {
 		List<Claim> list = new ArrayList<>();
-		if(documentType == null) {	
-			claimsRepository.findAll().forEach(list::add);
+		if(documentType == null) {
+			list.addAll(claimsRepository.findAll());
 		}
 		else {
-			claimsRepository.findByDocType(documentType).forEach(list::add);
+			list.addAll(claimsRepository.findByDocType(documentType));
 		}	
-		return new ResponseEntity<List<Claim>>(list, new HttpHeaders(), HttpStatus.OK);
+		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 	}
 
 	public Claim getClaimByCreator(String creatorId) {
@@ -193,17 +190,16 @@ public class ClaimsServiceImpl implements ClaimsService {
 	}
 	@Override
 	public ResponseEntity<List<Claim>> getAllClaimsByStatus(){
-		List<Claim> list = new ArrayList<>(); 
-		claimsRepository.findClaimsbyStatus();
+		List<Claim> list = new ArrayList<>(claimsRepository.findClaimsByStatus());
 		System.out.println(list);
-		return new ResponseEntity<List<Claim>>(list, new HttpHeaders(), HttpStatus.OK);
+		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 
 	}
 	@Override
 	public ResponseEntity<List<Claim>> getClaimsByCreateDate(String createDate) {
 		List<Claim> list = new ArrayList<>();
-		if(createDate == null) {	
-			claimsRepository.findAll().forEach(list::add);
+		if(createDate == null) {
+			list.addAll(claimsRepository.findAll());
 		}
 		else {
 			claimsRepository.findByCreatedDate(createDate).forEach(list::add);
@@ -230,8 +226,28 @@ public class ClaimsServiceImpl implements ClaimsService {
 
 	@Override//find a way by query
 	public ResponseEntity<List<Claim>> getAllMessagesPaginated(int start, int size) {
-		ArrayList<Claim> paginatedMsg = new ArrayList<Claim>(claimsRepository.findAll());
-		return new ResponseEntity<List<Claim>>(paginatedMsg.subList(start, start + size), new HttpHeaders(), HttpStatus.OK);
+		ArrayList<Claim> paginatedMsg = new ArrayList<>(claimsRepository.findAll());
+		return new ResponseEntity<>(paginatedMsg.subList(start, start + size), new HttpHeaders(), HttpStatus.OK);
 	}
 
+	public List<Claim> getClaimsByDateRange(String startDate, String endDate) {
+		List<Claim> claims = claimsRepository.findByDateRange(startDate,endDate);
+		claims.addAll(claimsRepository.findClaimsByStatus());
+		return claims;
+	}
+
+	public int claimCount(){
+		List<Claim> claim = claimsRepository.findAll();
+		return claim.size();
+	}
+
+	public float totalClaimAmount(){
+		float claimedAmount = 0;
+		List<Claim> claims = claimsRepository.findAll();
+		for(Claim claim:claims){
+			claimedAmount += Float.parseFloat(claim.getClaimedAmount());
+		}
+		return claimedAmount;
+
+	}
 }

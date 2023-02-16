@@ -1,12 +1,10 @@
 package com.miracle.claims.service;
 
 
-import java.util.List;
-import java.util.Optional;
-
+import com.miracle.claims.beans.Claim;
 import org.springframework.http.ResponseEntity;
 
-import com.miracle.claims.beans.Claim;
+import java.util.List;
 
 public interface ClaimsService {
 	
@@ -38,6 +36,9 @@ public ResponseEntity<List<Claim>> getAllClaimsFilter(Claim claim, int page, int
 	public ResponseEntity<List<Claim>> getAllMessagesPaginated(int start, int size);
 
 	ResponseEntity<List<Claim>> getAllClaims();
+
+	public int claimCount();
+	public float totalClaimAmount();
 
 
 //	public ResponseEntity<List<Claim>> getClaimsByClaimedAmountAndStatus(String claimedAmount, String claimStatus);
