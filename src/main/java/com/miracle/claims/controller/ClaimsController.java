@@ -1,6 +1,7 @@
 package com.miracle.claims.controller;
 
 import com.miracle.claims.beans.Claim;
+import com.miracle.claims.beans.ClaimDetails;
 import com.miracle.claims.config.ConfigurationDetails;
 import com.miracle.claims.exception.ErrorDetails;
 import com.miracle.claims.service.ClaimsServiceImpl;
@@ -68,7 +69,12 @@ public class ClaimsController {
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
 	@GetMapping("")
 	public ResponseEntity<List<Claim>> getAllClaims() {
-		return claimsServices.getAllClaims();
+		ClaimDetails claimDetails = new ClaimDetails();
+		claimDetails.setTotalClaimedAmount(String.valueOf(claimsServices.totalClaimAmount()));
+		claimDetails.setTotalPaidAmount(String.valueOf(claimsServices.totalPaidAmount()));
+		claimDetails.setTotalCount(String.valueOf(claimsServices.claimCount()));
+		return new ResponseEntity<List<Claim>>(claimsServices.getAllClaims(),new HttpHeaders(),
+				HttpStatus.OK);
 	}
 	
 	//http://localhost:8100/claims/filter?page=1&size=4&sort=claimId
@@ -526,11 +532,11 @@ public class ClaimsController {
 			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
 			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
-	@GetMapping("/claims/analytics")
-	public ResponseEntity<List<Claim>> getClaimsByDateRange(
+	@GetMapping("/analytics")
+	public ResponseEntity<List<Map>> getClaimsByDateRange(
 			@ApiParam(value = "Claim Start and End Date", required = false) @RequestParam("startDate") String startDate,
 			@RequestParam("endDate") String endDate) {
-		return new ResponseEntity<List<Claim>>(claimsServices.getClaimsByDateRange(startDate,endDate), new HttpHeaders(),
+		return new ResponseEntity<List<Map>>(claimsServices.getClaimsByDateRange(startDate,endDate), new HttpHeaders(),
 				HttpStatus.OK);
 
 	}
@@ -544,7 +550,7 @@ public class ClaimsController {
 			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
 			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
-	@GetMapping("/count")
+	@GetMapping("/claimscount")
 	public int claimsCount(){
 		return claimsServices.claimCount();
 	}
@@ -563,7 +569,20 @@ public class ClaimsController {
 	public float totalClaimsAmount(){
 		return claimsServices.totalClaimAmount();
 	}
-	
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Get Total Claim Amount", notes = "JSON Supported", response = Claim.class)
+	@ApiResponses({ @ApiResponse(code = 200, message = "success", response = Claim.class),
+			@ApiResponse(code = 400, message = "bad-request", response = ErrorDetails.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
+			@ApiResponse(code = 403, message = "Claims service requires authentication - please check username and password", response = ErrorDetails.class),
+			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
+			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
+			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
+	@GetMapping("/totalpaidamount")
+	public float totalPaidAmount(){
+		return claimsServices.totalPaidAmount();
+	}
 //	@ResponseBody
 //	@ResponseStatus(HttpStatus.OK)
 //	@ApiOperation(value = "Get Claims By Claimed amount and claim status", notes = "JSON Supported", response = Claim.class)

@@ -5,6 +5,7 @@ import com.miracle.claims.beans.Claim;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ClaimsService {
 	
@@ -35,10 +36,12 @@ public ResponseEntity<List<Claim>> getAllClaimsFilter(Claim claim, int page, int
 	
 	public ResponseEntity<List<Claim>> getAllMessagesPaginated(int start, int size);
 
-	ResponseEntity<List<Claim>> getAllClaims();
+	public List<Claim> getAllClaims();
 
 	public int claimCount();
 	public float totalClaimAmount();
+	public float totalPaidAmount();
+	public List<Map>getClaimsByDateRange(String startDate, String endDate);
 
 
 //	public ResponseEntity<List<Claim>> getClaimsByClaimedAmountAndStatus(String claimedAmount, String claimStatus);

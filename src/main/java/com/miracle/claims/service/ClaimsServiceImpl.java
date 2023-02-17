@@ -15,7 +15,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Service
@@ -33,10 +35,9 @@ public class ClaimsServiceImpl implements ClaimsService {
 
 	// get the list of all
 	@Override
-	public ResponseEntity<List<Claim>> getAllClaims() {
+	public List<Claim> getAllClaims() {
 		
-		List<Claim> claim = claimsRepository.findAll();
-		return new ResponseEntity<>(claim , new HttpHeaders(), HttpStatus.OK);
+		return claimsRepository.findAll();
 	}
 	
 	
@@ -230,10 +231,35 @@ public class ClaimsServiceImpl implements ClaimsService {
 		return new ResponseEntity<>(paginatedMsg.subList(start, start + size), new HttpHeaders(), HttpStatus.OK);
 	}
 
-	public List<Claim> getClaimsByDateRange(String startDate, String endDate) {
-		List<Claim> claims = claimsRepository.findByDateRange(startDate,endDate);
-		claims.addAll(claimsRepository.findClaimsByStatus());
-		return claims;
+	public List<Map> getClaimsByDateRange(String startDate, String endDate) {
+		List<Claim> claims = claimsRepository.findByDateRange(startDate, endDate);
+		List<Claim> claimList = claimsRepository.findAll();
+		HashMap<String, Integer> map = new HashMap<>();
+		List<Map> claimStatusAndCount = new ArrayList<>();
+
+//		Query query = new Query();
+//
+//		List<Criteria> criteria = new ArrayList<>();
+//		for(Claim claim:claims){
+//			if(claim.getClaimStatus() != null) {
+//				criteria.add(Criteria.where("claim_status").is(claim.getClaimStatus()));
+//			}
+//		}
+//		query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[criteria.size()])));
+//
+//		return mongoOperations.find(query, Claim.class);
+		if(startDate == null && endDate == null){
+			for(Claim claim: claimList){
+				map.put(claim.getClaimStatus(), map.getOrDefault(claim.getClaimStatus(),0)+1);
+			}
+		}
+		else{
+			for(Claim claim: claims){
+			 	map.put(claim.getClaimStatus(), map.getOrDefault(claim.getClaimStatus(),0)+1);
+			}
+		}
+		claimStatusAndCount.add(map);
+		return claimStatusAndCount;
 	}
 
 	public int claimCount(){
@@ -248,6 +274,15 @@ public class ClaimsServiceImpl implements ClaimsService {
 			claimedAmount += Float.parseFloat(claim.getClaimedAmount());
 		}
 		return claimedAmount;
+
+	}
+	public float totalPaidAmount(){
+		float totalPaidAmount = 0;
+		List<Claim> claims = claimsRepository.findAll();
+		for(Claim claim:claims){
+			totalPaidAmount += Float.parseFloat(claim.getPaidAmount());
+		}
+		return totalPaidAmount;
 
 	}
 }

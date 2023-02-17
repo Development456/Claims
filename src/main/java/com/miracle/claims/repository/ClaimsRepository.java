@@ -20,9 +20,7 @@ public interface ClaimsRepository extends MongoRepository<Claim, String> {
 	
 	@Query(value= "{}",fields="{claim_status : 1}")
 	public List<Claim> findClaimsByStatus();
-	@Query(value="{claim_amount: ?0}", fields="{claim_amount}")
-	public long totalClaimAmount(int claimAmount);
-	
+
 	@Query("{claim_status : ?0}")
 	public List<Claim> findByStatus(String claimStatus);
 	
@@ -45,7 +43,7 @@ public interface ClaimsRepository extends MongoRepository<Claim, String> {
 //	@Query("{claimedAmount: ?0, claimStatus: ?1}")
 //	public List<Claim> findByClaimedAmountandStatus(String claimedAmount, String claimStatus);
 
-	@Query("create_date: {$gte: ?0, $lte: ?1}")
+	@Query(value = "create_date: {$gte: ?0, $lte: ?1}",fields = "{claim_status:1}")
 	public List<Claim> findByDateRange(String startDate, String endDate);
 
 	
