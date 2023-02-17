@@ -1,19 +1,15 @@
 package com.miracle.claims.service;
 
 
-import java.util.List;
-
+import com.miracle.claims.beans.Claim;
 import org.springframework.http.ResponseEntity;
 
-import com.miracle.claims.beans.Claim;
+import java.util.List;
+import java.util.Map;
 
 public interface ClaimsService {
 	
-	public float paidAmount();
-	
-	public List<String> uniqueDates();
-	
-	public int countOfFacility();
+public ResponseEntity<List<Claim>> getAllClaimsFilter(Claim claim, int page, int size, String sort);
 	
 	public ResponseEntity<List<Claim>> getAllClaimsByStatus();
 	
@@ -23,7 +19,7 @@ public interface ClaimsService {
 	
 	public String deleteClaims(Long serviceProviderClaimId);
 	
-	public List<Claim> getClaim(Long serviceProviderClaimId);
+	public Claim getClaim(long serviceProviderClaimId);
 
 	public ResponseEntity<List<Claim>> getClaimsByType(String claimType);
 
@@ -40,9 +36,12 @@ public interface ClaimsService {
 	
 	public ResponseEntity<List<Claim>> getAllMessagesPaginated(int start, int size);
 
-	ResponseEntity<List<Claim>> getAllClaims();
+	public List<Claim> getAllClaims();
 
-	ResponseEntity<List<Claim>> getAllClaimsFilter(Claim claim, int page, int size, String sort);
+	public int claimCount();
+	public float totalClaimAmount();
+	public float totalPaidAmount();
+	public List<Map>getClaimsByDateRange(String startDate, String endDate);
 
 
 //	public ResponseEntity<List<Claim>> getClaimsByClaimedAmountAndStatus(String claimedAmount, String claimStatus);

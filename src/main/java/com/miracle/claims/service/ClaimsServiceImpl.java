@@ -1,8 +1,7 @@
 package com.miracle.claims.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.miracle.claims.beans.Claim;
+import com.miracle.claims.repository.ClaimsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,14 +11,13 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.annotation.KafkaListener;
-//import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.miracle.claims.beans.Claim;
-import com.miracle.claims.repository.ClaimsRepository;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Service
@@ -34,24 +32,12 @@ public class ClaimsServiceImpl implements ClaimsService {
 
 	@Autowired
 	ClaimsSequenceGeneratorService claimsSeqGeneratorSvc;
-	
-	
-	@Override
-	public float paidAmount() {
-		float paidAmount = 0;
-		List<Claim> claim = claimsRepository.findAll();
-		for(Claim cl: claim) {
-			paidAmount = paidAmount + Float.parseFloat(cl.getPaidAmount());
-		}
-		return paidAmount;
-	}
 
 	// get the list of all
 	@Override
-	public ResponseEntity<List<Claim>> getAllClaims() {
+	public List<Claim> getAllClaims() {
 		
-		List<Claim> claim = claimsRepository.findAll();
-		return new ResponseEntity<List<Claim>>(claim , new HttpHeaders(), HttpStatus.OK);
+		return claimsRepository.findAll();
 	}
 	
 	
@@ -94,6 +80,9 @@ public class ClaimsServiceImpl implements ClaimsService {
 		if(claim.getCreatedDate() !=null ) {
 			criteria.add(Criteria.where("create_date").is(claim.getCreatedDate()));
 		}
+		if(claim.getUserId() !=null ) {
+			criteria.add(Criteria.where("user_id").is(claim.getUserId()));
+		}
 		
 		query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[criteria.size()])));
 		
@@ -114,7 +103,7 @@ public class ClaimsServiceImpl implements ClaimsService {
 	@Override
 	public ResponseEntity<Claim> updateClaims(Long claimId, Claim claim) {
 		try {
-			Claim claims = claimsRepository.findByServiceProviderClaimId(claimId);
+			Claim claims = claimsRepository.findById(claimId);
 			System.out.println("this is service pro" + claims.getServiceProviderClaimId());
 			// log.info("this is the output" + claims.getClaimId());
 			claims.setClaimId(claim.getClaimId());
@@ -125,7 +114,8 @@ public class ClaimsServiceImpl implements ClaimsService {
 			claims.setClaimedAmount(claim.getClaimedAmount());
 			claims.setClaimType(claim.getClaimType());
 			claims.setPaidAmount(claim.getPaidAmount());
-			claims.setCreatedDate(claim.getCreatedDate());
+            claims.setCreatedDate(claim.getCreatedDate());
+			claims.setCustomerId(claim.getCustomerId());
 			claimsRepository.save(claims);
 			return new ResponseEntity<Claim>(HttpStatus.OK);
 		} catch (Exception e) {
@@ -135,30 +125,23 @@ public class ClaimsServiceImpl implements ClaimsService {
 
 	// delete
 	@Override
-	public String deleteClaims(Long ServiceProviderClaimId) {
-		claimsRepository.deleteByServiceProviderClaimId(ServiceProviderClaimId);
-		return "claim deleted with id : " + ServiceProviderClaimId;
+	public String deleteClaims(Long serviceProviderClaimId) {
+		claimsRepository.deleteByServiceProviderClaimId(serviceProviderClaimId);
+		return "claim deleted with id : " + serviceProviderClaimId;
 	}
 
 	@Override
-	public List<Claim> getClaim(Long serverProviderClaimId) {
-		
-		Query query = new Query();
-		List<Criteria> criteria = new ArrayList<>();
-		criteria.add(Criteria.where("service_provider_claim_id").is(serverProviderClaimId));
-		query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[criteria.size()])));
-		List<Claim> claim = mongoOperations.find(query, Claim.class);
-		
-		return claim;
+	public Claim getClaim(long serviceProviderClaimId) {
+		return claimsRepository.findByServiceProviderClaimId(serviceProviderClaimId);
 	}
 	@Override
 	public ResponseEntity<List<Claim>> getFacilityClaim(String facilityId) {
 		// TODO Auto-generated method stub
 		List<Claim> list = new ArrayList<>();
 		if(facilityId == null) {
-			claimsRepository.findAll().forEach(list::add);
+			list.addAll(claimsRepository.findAll());
 		}else {
-			claimsRepository.findByFacilityId(facilityId).forEach(list::add);
+			list.addAll(claimsRepository.findByFacilityId(facilityId));
 		}		
 		return new ResponseEntity<>(list,new HttpHeaders(), HttpStatus.OK); 
 
@@ -168,9 +151,9 @@ public class ClaimsServiceImpl implements ClaimsService {
 	public ResponseEntity<List<Claim>> getClaimsByStatus(String claimStatus) {
 		List<Claim> list = new ArrayList<>(); 
 		if(claimStatus == null) {
-			claimsRepository.findAll().forEach(list::add);
+			list.addAll(claimsRepository.findAll());
 		}else {
-			claimsRepository.findByStatus(claimStatus).forEach(list::add);
+			list.addAll(claimsRepository.findByStatus(claimStatus));
 		}
 		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 	}
@@ -178,25 +161,25 @@ public class ClaimsServiceImpl implements ClaimsService {
 	@Override
 	public ResponseEntity<List<Claim>> getClaimsByType(String claimType) {
 		List<Claim> list = new ArrayList<>();
-		if(claimType == null) {	
-			claimsRepository.findAll().forEach(list::add);
+		if(claimType == null) {
+			list.addAll(claimsRepository.findAll());
 		}
 		else {
-			claimsRepository.findByType(claimType).forEach(list::add);
+			list.addAll(claimsRepository.findByType(claimType));
 		}	
-		return new ResponseEntity<List<Claim>>(list, new HttpHeaders(), HttpStatus.OK);
+		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 	}
 	
 	@Override
 	public ResponseEntity<List<Claim>> getClaimsByDocumentType(String documentType) {
 		List<Claim> list = new ArrayList<>();
-		if(documentType == null) {	
-			claimsRepository.findAll().forEach(list::add);
+		if(documentType == null) {
+			list.addAll(claimsRepository.findAll());
 		}
 		else {
-			claimsRepository.findByDocType(documentType).forEach(list::add);
+			list.addAll(claimsRepository.findByDocType(documentType));
 		}	
-		return new ResponseEntity<List<Claim>>(list, new HttpHeaders(), HttpStatus.OK);
+		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 	}
 
 	public Claim getClaimByCreator(String creatorId) {
@@ -208,17 +191,16 @@ public class ClaimsServiceImpl implements ClaimsService {
 	}
 	@Override
 	public ResponseEntity<List<Claim>> getAllClaimsByStatus(){
-		List<Claim> list = new ArrayList<>(); 
-		claimsRepository.findClaimsbyStatus();
+		List<Claim> list = new ArrayList<>(claimsRepository.findClaimsByStatus());
 		System.out.println(list);
-		return new ResponseEntity<List<Claim>>(list, new HttpHeaders(), HttpStatus.OK);
+		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 
 	}
 	@Override
 	public ResponseEntity<List<Claim>> getClaimsByCreateDate(String createDate) {
 		List<Claim> list = new ArrayList<>();
-		if(createDate == null) {	
-			claimsRepository.findAll().forEach(list::add);
+		if(createDate == null) {
+			list.addAll(claimsRepository.findAll());
 		}
 		else {
 			claimsRepository.findByCreatedDate(createDate).forEach(list::add);
@@ -245,45 +227,62 @@ public class ClaimsServiceImpl implements ClaimsService {
 
 	@Override//find a way by query
 	public ResponseEntity<List<Claim>> getAllMessagesPaginated(int start, int size) {
-		ArrayList<Claim> paginatedMsg = new ArrayList<Claim>(claimsRepository.findAll());
-		return new ResponseEntity<List<Claim>>(paginatedMsg.subList(start, start + size), new HttpHeaders(), HttpStatus.OK);
+		ArrayList<Claim> paginatedMsg = new ArrayList<>(claimsRepository.findAll());
+		return new ResponseEntity<>(paginatedMsg.subList(start, start + size), new HttpHeaders(), HttpStatus.OK);
 	}
-	
-	//Kafka Consumer
-	@KafkaListener(topics = "${spring.kafka.topic.name}",
-			groupId = "${spring.kafka.consumer.group-id}")
-	public void consume(Claim message) {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			
-			
-			String jsonString = mapper.writeValueAsString(message);
-			System.out.println("Json message received using Kafka listener " + jsonString);
-			
-			
-			//claim.setServiceProviderClaimId(claimsSeqGeneratorSvc.generateSequence(Claim.SEQUENCE_NAME));
-			claimsRepository.save(message);
+
+	public List<Map> getClaimsByDateRange(String startDate, String endDate) {
+		List<Claim> claims = claimsRepository.findByDateRange(startDate, endDate);
+		List<Claim> claimList = claimsRepository.findAll();
+		HashMap<String, Integer> map = new HashMap<>();
+		List<Map> claimStatusAndCount = new ArrayList<>();
+
+//		Query query = new Query();
+//
+//		List<Criteria> criteria = new ArrayList<>();
+//		for(Claim claim:claims){
+//			if(claim.getClaimStatus() != null) {
+//				criteria.add(Criteria.where("claim_status").is(claim.getClaimStatus()));
+//			}
+//		}
+//		query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[criteria.size()])));
+//
+//		return mongoOperations.find(query, Claim.class);
+		if(startDate == null && endDate == null){
+			for(Claim claim: claimList){
+				map.put(claim.getClaimStatus(), map.getOrDefault(claim.getClaimStatus(),0)+1);
+			}
 		}
-		catch(Exception e) {
-			e.printStackTrace();
+		else{
+			for(Claim claim: claims){
+			 	map.put(claim.getClaimStatus(), map.getOrDefault(claim.getClaimStatus(),0)+1);
+			}
 		}
-		
-		
+		claimStatusAndCount.add(map);
+		return claimStatusAndCount;
 	}
 
-
-	@Override
-	public List<String> uniqueDates() {
-		// TODO Auto-generated method stub
-		return null;
+	public int claimCount(){
+		List<Claim> claim = claimsRepository.findAll();
+		return claim.size();
 	}
 
+	public float totalClaimAmount(){
+		float claimedAmount = 0;
+		List<Claim> claims = claimsRepository.findAll();
+		for(Claim claim:claims){
+			claimedAmount += Float.parseFloat(claim.getClaimedAmount());
+		}
+		return claimedAmount;
 
-	@Override
-	public int countOfFacility() {
-		// TODO Auto-generated method stub
-		return 0;
 	}
-	
+	public float totalPaidAmount(){
+		float totalPaidAmount = 0;
+		List<Claim> claims = claimsRepository.findAll();
+		for(Claim claim:claims){
+			totalPaidAmount += Float.parseFloat(claim.getPaidAmount());
+		}
+		return totalPaidAmount;
 
+	}
 }

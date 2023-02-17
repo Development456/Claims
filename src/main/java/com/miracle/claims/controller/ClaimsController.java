@@ -1,36 +1,24 @@
 package com.miracle.claims.controller;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.miracle.claims.beans.Claim;
+import com.miracle.claims.beans.ClaimDetails;
+import com.miracle.claims.config.ConfigurationDetails;
 import com.miracle.claims.exception.ErrorDetails;
 import com.miracle.claims.service.ClaimsServiceImpl;
-
 import io.micrometer.core.annotation.Timed;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * The Class ClaimsController.
@@ -40,8 +28,8 @@ import io.swagger.annotations.ApiResponses;
 @RequestMapping("/claims")
 public class ClaimsController {
 	
-//	@Autowired
-//	ConfigurationDetails configuration;
+	@Autowired
+	ConfigurationDetails configuration;
 	/** The claims services. */
 	@Autowired
 	private ClaimsServiceImpl claimsServices;
@@ -64,31 +52,6 @@ public class ClaimsController {
 //	        return ResponseEntity.ok(pseudoProperty);
 //	 }
 	@Timed(
-			value = "claims.paidAmount",
-			histogram = true,
-			percentiles = {0.95, 0.99},
-			extraTags = {"version", "1.0"}
-			)
-	@ResponseBody
-	@ResponseStatus(HttpStatus.OK)
-	@ApiOperation(value = "return tha total paid amount of claims", notes = "JSON Supported", response = Claim.class)
-	@ApiResponses({ @ApiResponse(code = 200, message = "success", response = Claim.class),
-			@ApiResponse(code = 400, message = "bad-request", response = ErrorDetails.class),
-			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
-			@ApiResponse(code = 403, message = "Claims service requires authentication - please check username and password", response = ErrorDetails.class),
-			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
-			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
-			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
-	@GetMapping("/totalpaidamount")
-	public float paidAmount() {
-		return claimsServices.paidAmount();
-	}
-	
-	
-	
-	
-	
-	@Timed(
 			value = "claims.getAll",
 			histogram = true,
 			percentiles = {0.95, 0.99},
@@ -106,7 +69,12 @@ public class ClaimsController {
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
 	@GetMapping("")
 	public ResponseEntity<List<Claim>> getAllClaims() {
-		return claimsServices.getAllClaims();
+		ClaimDetails claimDetails = new ClaimDetails();
+		claimDetails.setTotalClaimedAmount(String.valueOf(claimsServices.totalClaimAmount()));
+		claimDetails.setTotalPaidAmount(String.valueOf(claimsServices.totalPaidAmount()));
+		claimDetails.setTotalCount(String.valueOf(claimsServices.claimCount()));
+		return new ResponseEntity<List<Claim>>(claimsServices.getAllClaims(),new HttpHeaders(),
+				HttpStatus.OK);
 	}
 	
 	//http://localhost:8100/claims/filter?page=1&size=4&sort=claimId
@@ -175,6 +143,9 @@ public class ClaimsController {
 			else if(key.equalsIgnoreCase("lastUpdateDate")) {
 				claim.setLastUpdateDate(value);
 			}
+			else if(key.equalsIgnoreCase("userId")) {
+				claim.setUserId(value);
+			}
 		});
 		return claimsServices.getAllClaimsFilter(claim, page, size, sort);
 	}
@@ -202,9 +173,9 @@ public class ClaimsController {
 			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
 	@GetMapping("/{serviceProviderClaimId}")
-	public ResponseEntity<List<Claim>> getClaimsByServiceProviderClaimId(
-			@ApiParam(value = "Service Provider Claim Id", required = true) @PathVariable Long serviceProviderClaimId) {
-		return new ResponseEntity<List<Claim>>(claimsServices.getClaim(serviceProviderClaimId), new HttpHeaders(),
+	public ResponseEntity<Claim> getClaimsByServiceProviderClaimId(
+			@ApiParam(value = "Service Provide Claim Id", required = true) @PathVariable long serviceProviderClaimId) {
+		return new ResponseEntity<Claim>(claimsServices.getClaim(serviceProviderClaimId), new HttpHeaders(),
 				HttpStatus.OK);
 	}
 
@@ -540,12 +511,9 @@ public class ClaimsController {
 		return claimsServices.getClaimsByCreateDate(createdDate);
 	}
 	
+
 	
-	//post for Kafka
-	@PostMapping
-	public void publish(Claim claim) {
-		claimsServices.consume(claim);
-	}
+	
 
 	/**
 	 * Gets the claims by date range.
@@ -554,25 +522,67 @@ public class ClaimsController {
 	 * @param endDate   the end date
 	 * @return the claims by date range
 	 */
-//	@ResponseBody
-//	@ResponseStatus(HttpStatus.OK)
-//	@ApiOperation(value = "Get Claims By Start and End Date", notes = "JSON Supported", response = Claim.class)
-//	@ApiResponses({ @ApiResponse(code = 200, message = "success", response = Claim.class),
-//			@ApiResponse(code = 400, message = "bad-request", response = ErrorDetails.class),
-//			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
-//			@ApiResponse(code = 403, message = "Claims service requires authentication - please check username and password", response = ErrorDetails.class),
-//			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
-//			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
-//			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
-//	@GetMapping("/claims/date-range")
-//	public ResponseEntity<List<Claim>> getClaimsByDateRange(
-//			@ApiParam(value = "Claim Start and End Date", required = true) @RequestParam("startDate") String startDate,
-//			@RequestParam("endDate") String endDate) {
-//		return null;
-//		
-//	}
-	
-	
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Get Claims By Start and End Date", notes = "JSON Supported", response = Claim.class)
+	@ApiResponses({ @ApiResponse(code = 200, message = "success", response = Claim.class),
+			@ApiResponse(code = 400, message = "bad-request", response = ErrorDetails.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
+			@ApiResponse(code = 403, message = "Claims service requires authentication - please check username and password", response = ErrorDetails.class),
+			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
+			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
+			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
+	@GetMapping("/analytics")
+	public ResponseEntity<List<Map>> getClaimsByDateRange(
+			@ApiParam(value = "Claim Start and End Date", required = false) @RequestParam("startDate") String startDate,
+			@RequestParam("endDate") String endDate) {
+		return new ResponseEntity<List<Map>>(claimsServices.getClaimsByDateRange(startDate,endDate), new HttpHeaders(),
+				HttpStatus.OK);
+
+	}
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Get Claims Count ", notes = "JSON Supported", response = Claim.class)
+	@ApiResponses({ @ApiResponse(code = 200, message = "success", response = Claim.class),
+			@ApiResponse(code = 400, message = "bad-request", response = ErrorDetails.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
+			@ApiResponse(code = 403, message = "Claims service requires authentication - please check username and password", response = ErrorDetails.class),
+			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
+			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
+			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
+	@GetMapping("/claimscount")
+	public int claimsCount(){
+		return claimsServices.claimCount();
+	}
+
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Get Total Claim Amount", notes = "JSON Supported", response = Claim.class)
+	@ApiResponses({ @ApiResponse(code = 200, message = "success", response = Claim.class),
+			@ApiResponse(code = 400, message = "bad-request", response = ErrorDetails.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
+			@ApiResponse(code = 403, message = "Claims service requires authentication - please check username and password", response = ErrorDetails.class),
+			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
+			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
+			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
+	@GetMapping("/totalclaimamount")
+	public float totalClaimsAmount(){
+		return claimsServices.totalClaimAmount();
+	}
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Get Total Claim Amount", notes = "JSON Supported", response = Claim.class)
+	@ApiResponses({ @ApiResponse(code = 200, message = "success", response = Claim.class),
+			@ApiResponse(code = 400, message = "bad-request", response = ErrorDetails.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
+			@ApiResponse(code = 403, message = "Claims service requires authentication - please check username and password", response = ErrorDetails.class),
+			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
+			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
+			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
+	@GetMapping("/totalpaidamount")
+	public float totalPaidAmount(){
+		return claimsServices.totalPaidAmount();
+	}
 //	@ResponseBody
 //	@ResponseStatus(HttpStatus.OK)
 //	@ApiOperation(value = "Get Claims By Claimed amount and claim status", notes = "JSON Supported", response = Claim.class)

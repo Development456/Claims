@@ -31,7 +31,7 @@ public class Claim {
 	public static final String SEQUENCE_NAME = "claim_id_sequence";
 
 	@Id
-//	@Field("_id")
+	@Field("_id")
 	private String _id;
 
 	@ApiModelProperty(required = true, value = "customer claim id", name = "claimId", dataType = "String", example = "1234")
@@ -82,7 +82,7 @@ public class Claim {
 	@Field("closed_date")
 	private String closedDate;
 
-	@ApiModelProperty(required = false, value = "create date", name = "createDate", dataType = "String", example = "16-OCT-2022 03.12.36.898000000 PM")
+	@ApiModelProperty(required = false, value = "create date", name = "createDate", dataType = "Date", example = "16-OCT-2022 03.12.36.898000000 PM")
 	@Field("create_date")
 	@CreatedDate
 	private String createdDate ;
@@ -101,13 +101,17 @@ public class Claim {
 	@Field("master_acc")
 	private String masterAccount;
 	
+	@ApiModelProperty(required = true, value = "user id", name = "userId", dataType = "String", example = "23ndsbjfjkdfh362875")
+	@Field("user_id")
+	private String userId;
+	
 	@Override
 	public String toString() {
 		return "Claim [id=" + _id + ", claimId=" + claimId + ", facilityId=" + facilityId + ", palletQuantity="
 				+ palletQuantity + ", documentType=" + documentType + ", claimedAmount=" + claimedAmount
 				+ ",paidAmount=" + paidAmount + ",serviceProviderClaimId=" + serviceProviderClaimId + ", claimStatus=" + claimStatus + ", claimType="
 				+ claimType + ", creatorId=" + creatorId + ", closedDate=" + closedDate + ",lastUpdateId="
-				+ lastUpdateId +  "createdDate=" + createdDate + ", customerId=" + customerId + ", masterAccount=" + masterAccount + "]";
+				+ lastUpdateId +  "createdDate=" + createdDate + ", customerId=" + customerId + ", masterAccount=" + masterAccount + ", userId=" + userId +"]";
 	}
 
 
