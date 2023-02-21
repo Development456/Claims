@@ -365,20 +365,20 @@ public class ClaimsServiceImpl implements ClaimsService {
 	}
 
 	// Kafka Consumer
-	@KafkaListener(topics = "${spring.kafka.topic.name}", groupId = "${spring.kafka.consumer.group-id}")
-	public void consume(Claim message) {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
+// 	@KafkaListener(topics = "${spring.kafka.topic.name}", groupId = "${spring.kafka.consumer.group-id}")
+// 	public void consume(Claim message) {
+// 		try {
+// 			ObjectMapper mapper = new ObjectMapper();
 
-			String jsonString = mapper.writeValueAsString(message);
-			System.out.println("Json message received using Kafka listener " + jsonString);
+// 			String jsonString = mapper.writeValueAsString(message);
+// 			System.out.println("Json message received using Kafka listener " + jsonString);
 
-			// claim.setServiceProviderClaimId(claimsSeqGeneratorSvc.generateSequence(Claim.SEQUENCE_NAME));
-			claimsRepository.save(message);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+// 			// claim.setServiceProviderClaimId(claimsSeqGeneratorSvc.generateSequence(Claim.SEQUENCE_NAME));
+// 			claimsRepository.save(message);
+// 		} catch (Exception e) {
+// 			e.printStackTrace();
+// 		}
 
-	}
+// 	}
 
 }
