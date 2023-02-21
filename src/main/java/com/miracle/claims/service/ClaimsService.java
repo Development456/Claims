@@ -41,8 +41,8 @@ public ResponseEntity<List<Claim>> getAllClaimsFilter(Claim claim, int page, int
 	public int claimCount();
 	public float totalClaimAmount();
 	public float totalPaidAmount();
-	public List<Map>getClaimsByDateRange(String startDate, String endDate);
-	public List<Map>getBarChartDetailsByDateRange(String startDate, String endDate);
+	public List<Map> getClaimsByDateRange(String startDate, String endDate);
+	public List<Map> getBarChartDetailsByDateRange(String startDate, String endDate);
 
 
 //	public ResponseEntity<List<Claim>> getClaimsByClaimedAmountAndStatus(String claimedAmount, String claimStatus);

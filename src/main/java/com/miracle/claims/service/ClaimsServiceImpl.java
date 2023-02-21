@@ -17,8 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-
-import static java.util.stream.Collectors.toMap;
+import java.util.stream.Collectors;
 
 @Component
 @Service
@@ -223,64 +222,121 @@ public class ClaimsServiceImpl implements ClaimsService {
 		return new ResponseEntity<>(paginatedMsg.subList(start, start + size), new HttpHeaders(), HttpStatus.OK);
 	}
 
+//	public List<Map> getClaimsByDateRange(String startDate, String endDate) {
+//		HashMap<String, Integer> map = new HashMap<>();
+//		List<Map> claimStatusAndCount = new ArrayList<>();
+//		if (startDate != null && endDate != null) {
+//			List<Claim> claims = claimsRepository.findByDateRange(startDate, endDate);
+//			for (Claim claim : claims) {
+//				map.put(claim.getClaimStatus(), map.getOrDefault(claim.getClaimStatus(), 0) + 1);
+//			}
+//		}else {
+//			List<Claim> claimList = claimsRepository.findAll();
+//			for (Claim claim : claimList) {
+//				map.put(claim.getClaimStatus(), map.getOrDefault(claim.getClaimStatus(), 0) + 1);
+//			}
+//
+//		}
+//		claimStatusAndCount.add(map);
+//		return claimStatusAndCount;
+//	}
 	public List<Map> getClaimsByDateRange(String startDate, String endDate) {
-		HashMap<String, Integer> map = new HashMap<>();
-		List<Map> claimStatusAndCount = new ArrayList<>();
+		List<Claim> claims;
 		if (startDate != null && endDate != null) {
-			List<Claim> claims = claimsRepository.findByDateRange(startDate, endDate);
-			for (Claim claim : claims) {
-				map.put(claim.getClaimStatus(), map.getOrDefault(claim.getClaimStatus(), 0) + 1);
-			}
-		}else {
-			List<Claim> claimList = claimsRepository.findAll();
-			for (Claim claim : claimList) {
-				map.put(claim.getClaimStatus(), map.getOrDefault(claim.getClaimStatus(), 0) + 1);
-			}
-
+			claims = claimsRepository.findByDateRange(startDate, endDate);
+		} else {
+			claims = claimsRepository.findAll();
 		}
-		claimStatusAndCount.add(map);
+
+		Map<String, Integer> claimStatusCounts = new HashMap<>();
+		for (Claim claim : claims) {
+			claimStatusCounts.put(claim.getClaimStatus(), claimStatusCounts.getOrDefault(claim.getClaimStatus(), 0) + 1);
+		}
+
+		List<Map> claimStatusAndCount = new ArrayList<>();
+		claimStatusAndCount.add(claimStatusCounts);
+
 		return claimStatusAndCount;
 	}
 
+//	@Override
+//	public List<Map>getBarChartDetailsByDateRange(String startDate, String endDate) {
+//		HashMap<String, Integer> mapOpen = new HashMap<>();
+//		HashMap<String, Integer> mapClosed = new HashMap<>();
+//		List<Map> claimAmountCount = new ArrayList<>();
+//
+//		if (startDate != null && endDate != null) {
+//			List<Claim> claims = claimsRepository.findByDateRange(startDate, endDate);
+//			for (Claim claim : claims) {
+//				if (Objects.equals(claim.getClaimStatus(), "Open")) {
+//					mapOpen.put(claim.getMasterAccount(), Integer.parseInt(claim.getClaimedAmount()));
+//				} else if (Objects.equals(claim.getClaimStatus(), "Closed")) {
+//					mapClosed.put(claim.getMasterAccount(), Integer.parseInt(claim.getClaimedAmount()));
+//				}
+//			}
+//		} else {
+//			List<Claim> claimList = claimsRepository.findAll();
+//			for (Claim claim : claimList) {
+//				if(Objects.equals(claim.getClaimStatus(), "Open")){
+//					mapOpen.put(claim.getMasterAccount(), Integer.parseInt(claim.getClaimedAmount()));
+//				} else if (Objects.equals(claim.getClaimStatus(), "Closed")) {
+//					mapClosed.put(claim.getMasterAccount(), Integer.parseInt(claim.getClaimedAmount()));
+//				}
+//			}
+//		}
+//		if(claimsRepository.findByClaimStatus("Closed")){
+//			Map<String,Integer> sortedClosedMap = mapClosed.entrySet()
+//					.stream()
+//					.sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+//					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue,(e1,e2)->e2,LinkedHashMap::new));
+//			claimAmountCount.add(sortedClosedMap);
+//		}else if(claimsRepository.findByClaimStatus("Open")){
+//			Map<String,Integer> sortedOpenMap = mapOpen.entrySet()
+//					.stream()
+//					.sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+//					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue,(e1,e2)->e2,LinkedHashMap::new));
+//			claimAmountCount.add(sortedOpenMap);
+//		}
+//		return claimAmountCount;
+//	}
 	@Override
-	public List<Map>getBarChartDetailsByDateRange(String startDate, String endDate) {
-		HashMap<String, Integer> mapOpen = new HashMap<>();
-		HashMap<String, Integer> mapClosed = new HashMap<>();
-		List<Map> claimAmountCount = new ArrayList<>();
+	public List<Map> getBarChartDetailsByDateRange(String startDate, String endDate) {
+		List<Claim> claims = (startDate != null && endDate != null) ?
+				claimsRepository.findByDateRange(startDate, endDate) :
+				claimsRepository.findAll();
 
-		if (startDate != null && endDate != null) {
-			List<Claim> claims = claimsRepository.findByDateRange(startDate, endDate);
-			for (Claim claim : claims) {
-				if (Objects.equals(claim.getClaimStatus(), "Open")) {
-					mapOpen.put(claim.getMasterAccount(), Integer.parseInt(claim.getClaimedAmount()));
-				} else if (Objects.equals(claim.getClaimStatus(), "Closed")) {
-					mapClosed.put(claim.getMasterAccount(), Integer.parseInt(claim.getClaimedAmount()));
-				}
+		Map<String, Float> mapOpen = new HashMap<>();
+		Map<String, Float> mapClosed = new HashMap<>();
+
+		for (Claim claim : claims) {
+			Map<String, Float> map;
+			if (Objects.equals(claim.getClaimStatus(), "Open")) {
+				map = mapOpen;
+			} else if (Objects.equals(claim.getClaimStatus(), "Closed")) {
+				map = mapClosed;
+			} else {
+				continue; // skip invalid claim status
 			}
-		} else {
-			List<Claim> claimList = claimsRepository.findAll();
-			for (Claim claim : claimList) {
-				if(Objects.equals(claim.getClaimStatus(), "Open")){
-					mapOpen.put(claim.getMasterAccount(), Integer.parseInt(claim.getClaimedAmount()));
-				} else if (Objects.equals(claim.getClaimStatus(), "Closed")) {
-					mapClosed.put(claim.getMasterAccount(), Integer.parseInt(claim.getClaimedAmount()));
-				}
-			}
+			map.put(claim.getMasterAccount(), Float.parseFloat(claim.getClaimedAmount()));
 		}
-		if(claimsRepository.findByClaimStatus("Closed")){
-			Map<String,Integer> sortedClosedMap = mapClosed.entrySet()
-					.stream()
-					.sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
-					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue,(e1,e2)->e2,LinkedHashMap::new));
+
+		List<Map> claimAmountCount = new ArrayList<>();
+		if (!mapClosed.isEmpty()) {
+			Map<String, Float> sortedClosedMap = sortMapByValue(mapClosed);
 			claimAmountCount.add(sortedClosedMap);
-		}else if(claimsRepository.findByClaimStatus("Open")){
-			Map<String,Integer> sortedOpenMap = mapOpen.entrySet()
-					.stream()
-					.sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
-					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue,(e1,e2)->e2,LinkedHashMap::new));
+		}
+		if (!mapOpen.isEmpty()) {
+			Map<String, Float> sortedOpenMap = sortMapByValue(mapOpen);
 			claimAmountCount.add(sortedOpenMap);
 		}
 		return claimAmountCount;
+	}
+
+	private Map<String, Float> sortMapByValue(Map<String, Float> map) {
+		return map.entrySet()
+				.stream()
+				.sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 	}
 	public int claimCount() {
 		List<Claim> claim = claimsRepository.findAll();

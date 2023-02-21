@@ -28,7 +28,7 @@ public class Claim {
 
 	@Id
 	@Field("_id")
-	private String _id;
+	private String id;
 
 	@ApiModelProperty(required = true, value = "customer claim id", name = "claimId", dataType = "String", example = "1234")
 	@Field("claim_id")
@@ -103,14 +103,7 @@ public class Claim {
 
 	private List<ClaimDetails> claimDetails;
 	
-	@Override
-	public String toString() {
-		return "Claim [id=" + _id + ", claimId=" + claimId + ", facilityId=" + facilityId + ", palletQuantity="
-				+ palletQuantity + ", documentType=" + documentType + ", claimedAmount=" + claimedAmount
-				+ ",paidAmount=" + paidAmount + ",serviceProviderClaimId=" + serviceProviderClaimId + ", claimStatus=" + claimStatus + ", claimType="
-				+ claimType + ", creatorId=" + creatorId + ", closedDate=" + closedDate + ",lastUpdateId="
-				+ lastUpdateId +  "createdDate=" + createdDate + ", customerId=" + customerId + ", masterAccount=" + masterAccount + ", userId=" + userId +"]";
-	}
+
 
 
 

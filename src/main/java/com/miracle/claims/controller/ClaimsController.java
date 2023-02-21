@@ -53,11 +53,11 @@ public class ClaimsController {
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
 	@GetMapping("")
 	public ResponseEntity<List<Claim>> getAllClaims() {
-		ClaimDetails claimDetails = new ClaimDetails();
-		claimDetails.setTotalClaimedAmount(String.valueOf(claimsServices.totalClaimAmount()));
-		claimDetails.setTotalPaidAmount(String.valueOf(claimsServices.totalPaidAmount()));
-		claimDetails.setTotalCount(String.valueOf(claimsServices.claimCount()));
-		return new ResponseEntity<List<Claim>>(claimsServices.getAllClaims(), new HttpHeaders(),
+//		ClaimDetails claimDetails = new ClaimDetails();
+//		claimDetails.setTotalClaimedAmount(String.valueOf(claimsServices.totalClaimAmount()));
+//		claimDetails.setTotalPaidAmount(String.valueOf(claimsServices.totalPaidAmount()));
+//		claimDetails.setTotalCount(String.valueOf(claimsServices.claimCount()));
+		return new ResponseEntity<>(claimsServices.getAllClaims(), new HttpHeaders(),
 				HttpStatus.OK);
 	}
 
@@ -464,12 +464,11 @@ public class ClaimsController {
 			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
 	@GetMapping("/analytics")
-	public ResponseEntity<List<Map>> getClaimsByDateRange(
+	public ResponseEntity<List<Map>>getClaimsByDateRange(
 			@ApiParam(value = "Claim Start and End Date", required = false) @Nullable @RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate) {
 		return new ResponseEntity<List<Map>>(claimsServices.getClaimsByDateRange(startDate, endDate), new HttpHeaders(),
 				HttpStatus.OK);
-
 	}
 
 	@ResponseBody
@@ -483,14 +482,13 @@ public class ClaimsController {
 			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
 	@GetMapping("/barchartanalytics")
-	public ResponseEntity<List<Map>> getBarChartDetailsByDateRange(
-			@ApiParam(value = "Claim Start and End Date", required = false) @Nullable @RequestParam("startDate") String startDate,
-			@RequestParam("endDate") String endDate) {
+	public ResponseEntity<List<Map>>getBarChartDetailsByDateRange(
+			@ApiParam(value = "Claim Start and End Date", required = false) @Nullable @RequestParam(value = "startDate",required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate) {
 		return new ResponseEntity<List<Map>>(claimsServices.getBarChartDetailsByDateRange(startDate, endDate), new HttpHeaders(),
 				HttpStatus.OK);
 
 	}
-
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Get Claims Count ", notes = "JSON Supported", response = Claim.class)
