@@ -441,10 +441,10 @@ public class ClaimsController {
 	}
 
 	// post for Kafka
-	@PostMapping
-	public void publish(Claim claim) {
-		claimsServices.consume(claim);
-	}
+	//@PostMapping
+// 	public void publish(Claim claim) {
+// 		claimsServices.consume(claim);
+// 	}
 
 	/**
 	 * Gets the claims by date range.
