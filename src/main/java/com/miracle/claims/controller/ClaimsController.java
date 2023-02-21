@@ -2,9 +2,9 @@ package com.miracle.claims.controller;
 
 import com.miracle.claims.beans.Claim;
 import com.miracle.claims.beans.ClaimDetails;
-import com.miracle.claims.config.ConfigurationDetails;
 import com.miracle.claims.exception.ErrorDetails;
 import com.miracle.claims.service.ClaimsServiceImpl;
+import com.mongodb.lang.Nullable;
 import io.micrometer.core.annotation.Timed;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -40,28 +40,6 @@ public class ClaimsController {
 	 * @return the all claims
 	 */
 
-	// @GetMapping("/endpoint")
-	// public String dbDetails(){
-	// return "Value: " + configuration.getValue();
-	// }
-	// @Value("${client.pseudo.property}")
-	// private String pseudoProperty;
-	//
-	// @GetMapping("/property")
-	// public ResponseEntity<String> getProperty() {
-	// return ResponseEntity.ok(pseudoProperty);
-	// }
-	// @GetMapping("/endpoint")
-	// public String dbDetails(){
-	// return "Value: " + configuration.getValue();
-	// }
-	// @Value("${client.pseudo.property}")
-	// private String pseudoProperty;
-	//
-	// @GetMapping("/property")
-	// public ResponseEntity<String> getProperty() {
-	// return ResponseEntity.ok(pseudoProperty);
-	// }
 	@Timed(value = "claims.getAll", histogram = true, percentiles = { 0.95, 0.99 }, extraTags = { "version", "1.0" })
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
@@ -487,9 +465,28 @@ public class ClaimsController {
 			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
 	@GetMapping("/analytics")
 	public ResponseEntity<List<Map>> getClaimsByDateRange(
-			@ApiParam(value = "Claim Start and End Date", required = false) @RequestParam("startDate") String startDate,
-			@RequestParam("endDate") String endDate) {
+			@ApiParam(value = "Claim Start and End Date", required = false) @Nullable @RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate) {
 		return new ResponseEntity<List<Map>>(claimsServices.getClaimsByDateRange(startDate, endDate), new HttpHeaders(),
+				HttpStatus.OK);
+
+	}
+
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Get Claims By Start and End Date", notes = "JSON Supported", response = Claim.class)
+	@ApiResponses({ @ApiResponse(code = 200, message = "success", response = Claim.class),
+			@ApiResponse(code = 400, message = "bad-request", response = ErrorDetails.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
+			@ApiResponse(code = 403, message = "Claims service requires authentication - please check username and password", response = ErrorDetails.class),
+			@ApiResponse(code = 404, message = "Data not found", response = ErrorDetails.class),
+			@ApiResponse(code = 405, message = "Method not allowed", response = ErrorDetails.class),
+			@ApiResponse(code = 500, message = "Internal server error", response = ErrorDetails.class) })
+	@GetMapping("/barchartanalytics")
+	public ResponseEntity<List<Map>> getBarChartDetailsByDateRange(
+			@ApiParam(value = "Claim Start and End Date", required = false) @Nullable @RequestParam("startDate") String startDate,
+			@RequestParam("endDate") String endDate) {
+		return new ResponseEntity<List<Map>>(claimsServices.getBarChartDetailsByDateRange(startDate, endDate), new HttpHeaders(),
 				HttpStatus.OK);
 
 	}

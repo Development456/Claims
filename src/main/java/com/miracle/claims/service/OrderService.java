@@ -1,7 +1,7 @@
 package com.miracle.claims.service;
 
-import java.util.List;
-
+import com.miracle.claims.beans.Order;
+import com.miracle.claims.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.http.HttpHeaders;
@@ -10,8 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import com.miracle.claims.beans.Order;
-import com.miracle.claims.repository.OrderRepository;
+import java.util.List;
 
 @Component("OrderService")
 @Service
@@ -60,9 +59,8 @@ public class OrderService implements OrderServiceImpl {
 	}
 	@Override
 	public ResponseEntity<Order> createOrders(Order order) {
-		// TODO Auto-generated method stub
 		Order newOrder = orderRepository.save(order);
-		return new ResponseEntity<Order>(newOrder, new HttpHeaders(), HttpStatus.OK);
+		return new ResponseEntity<>(newOrder, new HttpHeaders(), HttpStatus.OK);
 	}
 	// delete
 	@Override

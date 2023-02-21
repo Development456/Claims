@@ -1,5 +1,6 @@
 package com.miracle.claims.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miracle.claims.beans.Claim;
 import com.miracle.claims.repository.ClaimsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,15 +13,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
-//import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static java.util.stream.Collectors.toMap;
 
 @Component
 @Service
@@ -84,11 +82,11 @@ public class ClaimsServiceImpl implements ClaimsService {
 			criteria.add(Criteria.where("user_id").is(claim.getUserId()));
 		}
 
-		query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[criteria.size()])));
+		query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[0])));
 
 		List<Claim> filteredVals = mongoOperations.find(query, Claim.class);
 
-		return new ResponseEntity<List<Claim>>(filteredVals, new HttpHeaders(), HttpStatus.OK);
+		return new ResponseEntity<>(filteredVals, new HttpHeaders(), HttpStatus.OK);
 	}
 
 	// post
@@ -96,7 +94,7 @@ public class ClaimsServiceImpl implements ClaimsService {
 	public ResponseEntity<Claim> createClaims(Claim claim) {
 		claim.setServiceProviderClaimId(claimsSeqGeneratorSvc.generateSequence(Claim.SEQUENCE_NAME));
 		Claim newClaim = claimsRepository.save(claim);
-		return new ResponseEntity<Claim>(newClaim, new HttpHeaders(), HttpStatus.OK);
+		return new ResponseEntity<>(newClaim, new HttpHeaders(), HttpStatus.OK);
 	}
 
 	// put
@@ -117,7 +115,7 @@ public class ClaimsServiceImpl implements ClaimsService {
 			claims.setCreatedDate(claim.getCreatedDate());
 			claims.setCustomerId(claim.getCustomerId());
 			claimsRepository.save(claims);
-			return new ResponseEntity<Claim>(HttpStatus.OK);
+			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		}
@@ -137,7 +135,6 @@ public class ClaimsServiceImpl implements ClaimsService {
 
 	@Override
 	public ResponseEntity<List<Claim>> getFacilityClaim(String facilityId) {
-		// TODO Auto-generated method stub
 		List<Claim> list = new ArrayList<>();
 		if (facilityId == null) {
 			list.addAll(claimsRepository.findAll());
@@ -193,7 +190,7 @@ public class ClaimsServiceImpl implements ClaimsService {
 	@Override
 	public ResponseEntity<List<Claim>> getAllClaimsByStatus() {
 		List<Claim> list = new ArrayList<>(claimsRepository.findClaimsByStatus());
-		System.out.println(list);
+//		log.info(list);
 		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 
 	}
@@ -204,27 +201,20 @@ public class ClaimsServiceImpl implements ClaimsService {
 		if (createDate == null) {
 			list.addAll(claimsRepository.findAll());
 		} else {
-			claimsRepository.findByCreatedDate(createDate).forEach(list::add);
+			list.addAll(claimsRepository.findByCreatedDate(createDate));
 		}
-		return new ResponseEntity<List<Claim>>(list, new HttpHeaders(), HttpStatus.OK);
+		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 	}
-	// @Override
-	// public ResponseEntity<List<Claim>> getClaimsByClaimedAmountAndStatus(String
-	// claimedAmount, String claimStatus){
-	// List<Claim> list = new ArrayList<>();
-	// claimsRepository.findByClaimedAmountandStatus(claimedAmount,claimStatus);
-	// return new ResponseEntity<List<Claim>>(list, new HttpHeaders(),
-	// HttpStatus.OK);
-	// }
+
 
 	public ResponseEntity<List<Claim>> getClaimsByClosedDate(String closedDate) {
 		List<Claim> list = new ArrayList<>();
 		if (closedDate == null) {
-			claimsRepository.findAll().forEach(list::add);
+			list.addAll(claimsRepository.findAll());
 		} else {
-			claimsRepository.findByClosedDate(closedDate).forEach(list::add);
+			list.addAll(claimsRepository.findByClosedDate(closedDate));
 		}
-		return new ResponseEntity<List<Claim>>(list, new HttpHeaders(), HttpStatus.OK);
+		return new ResponseEntity<>(list, new HttpHeaders(), HttpStatus.OK);
 	}
 
 	@Override // find a way by query
@@ -234,36 +224,64 @@ public class ClaimsServiceImpl implements ClaimsService {
 	}
 
 	public List<Map> getClaimsByDateRange(String startDate, String endDate) {
-		List<Claim> claims = claimsRepository.findByDateRange(startDate, endDate);
-		List<Claim> claimList = claimsRepository.findAll();
 		HashMap<String, Integer> map = new HashMap<>();
 		List<Map> claimStatusAndCount = new ArrayList<>();
-
-		// Query query = new Query();
-		//
-		// List<Criteria> criteria = new ArrayList<>();
-		// for(Claim claim:claims){
-		// if(claim.getClaimStatus() != null) {
-		// criteria.add(Criteria.where("claim_status").is(claim.getClaimStatus()));
-		// }
-		// }
-		// query.addCriteria(new Criteria().andOperator(criteria.toArray(new
-		// Criteria[criteria.size()])));
-		//
-		// return mongoOperations.find(query, Claim.class);
-		if (startDate == null && endDate == null) {
-			for (Claim claim : claimList) {
-				map.put(claim.getClaimStatus(), map.getOrDefault(claim.getClaimStatus(), 0) + 1);
-			}
-		} else {
+		if (startDate != null && endDate != null) {
+			List<Claim> claims = claimsRepository.findByDateRange(startDate, endDate);
 			for (Claim claim : claims) {
 				map.put(claim.getClaimStatus(), map.getOrDefault(claim.getClaimStatus(), 0) + 1);
 			}
+		}else {
+			List<Claim> claimList = claimsRepository.findAll();
+			for (Claim claim : claimList) {
+				map.put(claim.getClaimStatus(), map.getOrDefault(claim.getClaimStatus(), 0) + 1);
+			}
+
 		}
 		claimStatusAndCount.add(map);
 		return claimStatusAndCount;
 	}
 
+	@Override
+	public List<Map>getBarChartDetailsByDateRange(String startDate, String endDate) {
+		HashMap<String, Integer> mapOpen = new HashMap<>();
+		HashMap<String, Integer> mapClosed = new HashMap<>();
+		List<Map> claimAmountCount = new ArrayList<>();
+
+		if (startDate != null && endDate != null) {
+			List<Claim> claims = claimsRepository.findByDateRange(startDate, endDate);
+			for (Claim claim : claims) {
+				if (Objects.equals(claim.getClaimStatus(), "Open")) {
+					mapOpen.put(claim.getMasterAccount(), Integer.parseInt(claim.getClaimedAmount()));
+				} else if (Objects.equals(claim.getClaimStatus(), "Closed")) {
+					mapClosed.put(claim.getMasterAccount(), Integer.parseInt(claim.getClaimedAmount()));
+				}
+			}
+		} else {
+			List<Claim> claimList = claimsRepository.findAll();
+			for (Claim claim : claimList) {
+				if(Objects.equals(claim.getClaimStatus(), "Open")){
+					mapOpen.put(claim.getMasterAccount(), Integer.parseInt(claim.getClaimedAmount()));
+				} else if (Objects.equals(claim.getClaimStatus(), "Closed")) {
+					mapClosed.put(claim.getMasterAccount(), Integer.parseInt(claim.getClaimedAmount()));
+				}
+			}
+		}
+		if(claimsRepository.findByClaimStatus("Closed")){
+			Map<String,Integer> sortedClosedMap = mapClosed.entrySet()
+					.stream()
+					.sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue,(e1,e2)->e2,LinkedHashMap::new));
+			claimAmountCount.add(sortedClosedMap);
+		}else if(claimsRepository.findByClaimStatus("Open")){
+			Map<String,Integer> sortedOpenMap = mapOpen.entrySet()
+					.stream()
+					.sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue,(e1,e2)->e2,LinkedHashMap::new));
+			claimAmountCount.add(sortedOpenMap);
+		}
+		return claimAmountCount;
+	}
 	public int claimCount() {
 		List<Claim> claim = claimsRepository.findAll();
 		return claim.size();

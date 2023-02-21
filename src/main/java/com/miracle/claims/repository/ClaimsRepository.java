@@ -37,13 +37,15 @@ public interface ClaimsRepository extends MongoRepository<Claim, String> {
 	
 	@Query("{create_date :?0}")
 	public List<Claim> findByCreatedDate(String createdDate);
+	@Query("{claim_status : ?0}")
+	public boolean findByClaimStatus(String claimStatus);
 	
 	@Query("{closed_date :?0}")
 	public List<Claim> findByClosedDate(String closedDate);
 //	@Query("{claimedAmount: ?0, claimStatus: ?1}")
 //	public List<Claim> findByClaimedAmountandStatus(String claimedAmount, String claimStatus);
 
-	@Query(value = "create_date: {$gte: ?0, $lte: ?1}",fields = "{claim_status:1}")
+	@Query("{create_date: {$gte: ?0, $lte: ?1}}")
 	public List<Claim> findByDateRange(String startDate, String endDate);
 
 	
