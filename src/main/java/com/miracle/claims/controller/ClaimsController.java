@@ -484,7 +484,7 @@ public class ClaimsController {
 	@GetMapping("/barchartanalytics")
 	public ResponseEntity<List<Map>>getBarChartDetailsByDateRange(
 			@ApiParam(value = "Claim Start and End Date", required = false) @Nullable @RequestParam(value = "startDate",required = false) String startDate,
-			@RequestParam(value = "endDate", required = false) String endDate) {
+			@Nullable @RequestParam(value = "endDate", required = false) String endDate) {
 		return new ResponseEntity<List<Map>>(claimsServices.getBarChartDetailsByDateRange(startDate, endDate), new HttpHeaders(),
 				HttpStatus.OK);
 

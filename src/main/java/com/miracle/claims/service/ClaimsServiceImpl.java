@@ -241,6 +241,7 @@ public class ClaimsServiceImpl implements ClaimsService {
 //		return claimStatusAndCount;
 //	}
 	public List<Map> getClaimsByDateRange(String startDate, String endDate) {
+
 		List<Claim> claims;
 		if (startDate != null && endDate != null) {
 			claims = claimsRepository.findByDateRange(startDate, endDate);
