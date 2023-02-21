@@ -1,6 +1,10 @@
 package com.miracle.claims.beans;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -8,15 +12,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.List;
 
 @Getter
 @Setter
@@ -32,7 +28,7 @@ public class Claim {
 
 	@Id
 	@Field("_id")
-	private String _id;
+	private String id;
 
 	@ApiModelProperty(required = true, value = "customer claim id", name = "claimId", dataType = "String", example = "1234")
 	@Field("claim_id")
@@ -82,7 +78,7 @@ public class Claim {
 	@Field("closed_date")
 	private String closedDate;
 
-	@ApiModelProperty(required = false, value = "create date", name = "createDate", dataType = "Date", example = "16-OCT-2022 03.12.36.898000000 PM")
+	@ApiModelProperty(required = false, value = "create date", name = "createDate", dataType = "String", example = "16-OCT-2022 03.12.36.898000000 PM")
 	@Field("create_date")
 	@CreatedDate
 	private String createdDate ;
@@ -104,15 +100,10 @@ public class Claim {
 	@ApiModelProperty(required = true, value = "user id", name = "userId", dataType = "String", example = "23ndsbjfjkdfh362875")
 	@Field("user_id")
 	private String userId;
+
+	private List<ClaimDetails> claimDetails;
 	
-	@Override
-	public String toString() {
-		return "Claim [id=" + _id + ", claimId=" + claimId + ", facilityId=" + facilityId + ", palletQuantity="
-				+ palletQuantity + ", documentType=" + documentType + ", claimedAmount=" + claimedAmount
-				+ ",paidAmount=" + paidAmount + ",serviceProviderClaimId=" + serviceProviderClaimId + ", claimStatus=" + claimStatus + ", claimType="
-				+ claimType + ", creatorId=" + creatorId + ", closedDate=" + closedDate + ",lastUpdateId="
-				+ lastUpdateId +  "createdDate=" + createdDate + ", customerId=" + customerId + ", masterAccount=" + masterAccount + ", userId=" + userId +"]";
-	}
+
 
 
 
