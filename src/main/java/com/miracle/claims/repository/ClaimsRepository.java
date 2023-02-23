@@ -1,6 +1,5 @@
 package com.miracle.claims.repository;
 
-
 import com.miracle.claims.beans.Claim;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;

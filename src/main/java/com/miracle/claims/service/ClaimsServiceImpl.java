@@ -1,6 +1,5 @@
 package com.miracle.claims.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.miracle.claims.beans.Claim;
 import com.miracle.claims.repository.ClaimsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -241,7 +239,6 @@ public class ClaimsServiceImpl implements ClaimsService {
 //		return claimStatusAndCount;
 //	}
 	public List<Map> getClaimsByDateRange(String startDate, String endDate) {
-
 		List<Claim> claims;
 		if (startDate != null && endDate != null) {
 			claims = claimsRepository.findByDateRange(startDate, endDate);
@@ -336,6 +333,7 @@ public class ClaimsServiceImpl implements ClaimsService {
 	private Map<String, Float> sortMapByValue(Map<String, Float> map) {
 		return map.entrySet()
 				.stream()
+                .limit(5)
 				.sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 	}
@@ -364,21 +362,21 @@ public class ClaimsServiceImpl implements ClaimsService {
 
 	}
 
-	// Kafka Consumer
-	@KafkaListener(topics = "${spring.kafka.topic.name}", groupId = "${spring.kafka.consumer.group-id}")
-	public void consume(Claim message) {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-
-			String jsonString = mapper.writeValueAsString(message);
-			System.out.println("Json message received using Kafka listener " + jsonString);
-
-			// claim.setServiceProviderClaimId(claimsSeqGeneratorSvc.generateSequence(Claim.SEQUENCE_NAME));
-			claimsRepository.save(message);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
+//	// Kafka Consumer
+//	@KafkaListener(topics = "${spring.kafka.topic.name}", groupId = "${spring.kafka.consumer.group-id}")
+//	public void consume(Claim message) {
+//		try {
+//			ObjectMapper mapper = new ObjectMapper();
+//
+//			String jsonString = mapper.writeValueAsString(message);
+//			System.out.println("Json message received using Kafka listener " + jsonString);
+//
+//			// claim.setServiceProviderClaimId(claimsSeqGeneratorSvc.generateSequence(Claim.SEQUENCE_NAME));
+//			claimsRepository.save(message);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//
+//	}
 
 }

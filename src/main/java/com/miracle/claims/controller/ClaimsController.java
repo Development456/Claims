@@ -76,7 +76,6 @@ public class ClaimsController {
 	@GetMapping("/filter")
 	public ResponseEntity<List<Claim>> getfilter(@RequestHeader Map<String, String> headers,
 			@Param(value = "page") int page, @Param(value = "size") int size, @Param(value = "sort") String sort) {
-
 		Claim claim = new Claim();
 		headers.forEach((key, value) -> {
 
@@ -440,11 +439,11 @@ public class ClaimsController {
 		return claimsServices.getClaimsByCreateDate(createdDate);
 	}
 
-	// post for Kafka
-	@PostMapping
-	public void publish(Claim claim) {
-		claimsServices.consume(claim);
-	}
+//	// post for Kafka
+//	@PostMapping
+//	public void publish(Claim claim) {
+//		claimsServices.consume(claim);
+//	}
 
 	/**
 	 * Gets the claims by date range.
