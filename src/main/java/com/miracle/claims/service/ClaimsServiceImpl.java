@@ -335,6 +335,7 @@ public class ClaimsServiceImpl implements ClaimsService {
 	private Map<String, Float> sortMapByValue(Map<String, Float> map) {
 		return map.entrySet()
 				.stream()
+				.limit(5)
 				.sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 	}
